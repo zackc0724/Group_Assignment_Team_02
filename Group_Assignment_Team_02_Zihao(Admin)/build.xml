@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DigitalUniversityAdmin" default="run" basedir=".">
+    <property file="nbproject/project.properties"/>
+
+    <target name="init">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.classes.dir}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src.dir}" destdir="${build.classes.dir}"
+               source="${javac.source}" target="${javac.target}"
+               includeantruntime="false" debug="true" encoding="${source.encoding}">
+        </javac>
+    </target>
+
+    <target name="run" depends="compile">
+        <java classname="ui.MainJFrame" fork="true">
+            <classpath>
+                <pathelement location="${build.classes.dir}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${dist.dir}"/>
+        <jar destfile="${dist.jar}" manifest="manifest.mf">
+            <manifest>
+                <attribute name="Main-Class" value="ui.MainJFrame"/>
+            </manifest>
+            <fileset dir="${build.classes.dir}"/>
+        </jar>
+    </target>
+</project>

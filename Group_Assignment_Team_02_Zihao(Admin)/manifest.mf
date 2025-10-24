@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+X-Created-By: ChatGPT
+Main-Class: ui.MainJFrame
+
