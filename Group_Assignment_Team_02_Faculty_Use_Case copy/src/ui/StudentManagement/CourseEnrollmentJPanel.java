@@ -45,6 +45,7 @@ public CourseEnrollmentJPanel(FacultyProfile facultyProfile) {
         tblCourseEnrollment = new javax.swing.JTable();
         btnViewTranscript = new javax.swing.JButton();
         btnProgressReport = new javax.swing.JButton();
+        btnBack = new javax.swing.JButton();
 
         jLabel1.setText("Course");
 
@@ -77,6 +78,8 @@ public CourseEnrollmentJPanel(FacultyProfile facultyProfile) {
             }
         });
 
+        btnBack.setText("Back");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -98,6 +101,10 @@ public CourseEnrollmentJPanel(FacultyProfile facultyProfile) {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnProgressReport)
                 .addGap(137, 137, 137))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnBack)
+                .addGap(284, 284, 284))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -112,7 +119,8 @@ public CourseEnrollmentJPanel(FacultyProfile facultyProfile) {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnViewTranscript)
                     .addComponent(btnProgressReport))
-                .addContainerGap(106, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 83, Short.MAX_VALUE)
+                .addComponent(btnBack))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -126,6 +134,7 @@ public CourseEnrollmentJPanel(FacultyProfile facultyProfile) {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBack;
     private javax.swing.JButton btnProgressReport;
     private javax.swing.JButton btnViewTranscript;
     private javax.swing.JComboBox<String> cmbCourse;
