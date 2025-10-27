@@ -44,4 +44,10 @@ Auto-generate unique university IDs
 Manage faculty & student records
 Analytics dashboard: user counts, course totals, tuition summary (via JTable)
 
+Faculty Features
+Course Management: View/update course details, upload syllabus, manage enrollment
+Student Management: View enrolled students, grade assignments, view progress
+Performance Reporting: GPA, grade distribution, average grade reports
+Profile Management
+
 
