@@ -30,7 +30,6 @@ public class StudentGradingJPanel extends javax.swing.JPanel {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tblAssignment = new javax.swing.JTable();
-        btnTotalPercentage = new javax.swing.JButton();
         btnUpdateGrade = new javax.swing.JButton();
         btnLetterGrade = new javax.swing.JButton();
         btnRankStudents = new javax.swing.JButton();
@@ -53,8 +52,6 @@ public class StudentGradingJPanel extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tblAssignment);
 
-        btnTotalPercentage.setText("Compute Total %");
-
         btnUpdateGrade.setText("Update Grade");
 
         btnLetterGrade.setText("Compute Letter Grade");
@@ -75,9 +72,7 @@ public class StudentGradingJPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnUpdateGrade, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnTotalPercentage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(btnUpdateGrade, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnLetterGrade)
                         .addGap(80, 80, 80))
@@ -106,9 +101,7 @@ public class StudentGradingJPanel extends javax.swing.JPanel {
                 .addGap(39, 39, 39)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnTotalPercentage)
-                    .addComponent(btnLetterGrade))
+                .addComponent(btnLetterGrade)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnUpdateGrade)
@@ -132,7 +125,6 @@ public class StudentGradingJPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnLetterGrade;
     private javax.swing.JButton btnRankStudents;
-    private javax.swing.JButton btnTotalPercentage;
     private javax.swing.JButton btnUpdateGrade;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblLetterGrade;
