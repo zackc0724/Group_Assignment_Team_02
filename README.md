@@ -65,4 +65,22 @@ Student: Enroll in courses, pay tuition, view transcript.
 Navigation: Panels switch using CardLayout buttons.
 Logout: Return to login screen via "Back" or "Logout" buttons.
 
+ Test Case                       Expected Outcome                              
+
+ Login with invalid credentials  Error message: "Invalid username or password" 
+ Faculty login                   Opens Faculty dashboard                       
+ Admin login                     Opens Admin dashboard                         
+ Student login                   Opens Student dashboard                       
+ Add user (Admin)                User appears in JTable                        
+ Enroll student (Student)        Enrollment visible in Faculty panel           
+ Pay tuition (Student)          Updates balance and Admin dashboard           
+
+Future Enhancements
+Add a Registrar use case for course scheduling and tuition reports.
+Integrate database persistence (MySQL or SQLite).
+Enhance analytics using charts (e.g., average GPA, enrollment trends).
+Add file upload/download for syllabus and reports.
+
+
+
 
