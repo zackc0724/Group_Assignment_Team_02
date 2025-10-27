@@ -50,4 +50,19 @@ Student Management: View enrolled students, grade assignments, view progress
 Performance Reporting: GPA, grade distribution, average grade reports
 Profile Management
 
+Student Features
+Course Registration & Enrollment
+Transcript Viewer (sorted by semester)
+Tuition Payment & Balance Tracking
+Progress Tracking for Graduation Audit
+Profile Management
+
+Login using credentials.
+Depending on the role:
+Admin: Access Account Management, Records, Analytics Dashboard.
+Faculty: View courses, upload syllabus, grade students.
+Student: Enroll in courses, pay tuition, view transcript.
+Navigation: Panels switch using CardLayout buttons.
+Logout: Return to login screen via "Back" or "Logout" buttons.
+
 
