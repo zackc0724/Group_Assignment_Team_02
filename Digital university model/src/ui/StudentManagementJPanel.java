@@ -6,6 +6,8 @@ package ui;
 
 // Import necessary classes
 import auth.AuthManager;
+import info5100.university.example.model.directory.AssignmentDirectory;
+import info5100.university.example.model.directory.SubmissionDirectory;
 import java.awt.CardLayout;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -28,19 +30,26 @@ public class StudentManagementJPanel extends javax.swing.JPanel {
     private PersonDirectory personDirectory;
     private CourseDirectory courseDirectory;
     private EnrollmentDirectory enrollmentDirectory;
+    private AssignmentDirectory assignmentDirectory;
+    private SubmissionDirectory submissionDirectory;
 
 
     /**
      * Creates new form StudentManagementJPanel
      */
-   public StudentManagementJPanel(JPanel workArea, Faculty faculty, AuthManager authManager, PersonDirectory personDirectory, CourseDirectory courseDirectory, EnrollmentDirectory enrollmentDirectory) {
-        this.workArea = workArea;
-        this.loggedInFaculty = faculty;
-        this.authManager = authManager;
-        this.personDirectory = personDirectory;
-        this.courseDirectory = courseDirectory;
-        this.enrollmentDirectory = enrollmentDirectory;
-        initComponents();
+   public StudentManagementJPanel(JPanel workArea, Faculty faculty, AuthManager authManager,
+                           PersonDirectory personDirectory, CourseDirectory courseDirectory,
+                           EnrollmentDirectory enrollmentDirectory, AssignmentDirectory assignmentDirectory,
+                           SubmissionDirectory submissionDirectory) { // Added params
+    this.workArea = workArea;
+    this.loggedInFaculty = faculty;
+    this.authManager = authManager;
+    this.personDirectory = personDirectory;
+    this.courseDirectory = courseDirectory;
+    this.enrollmentDirectory = enrollmentDirectory;
+    this.assignmentDirectory = assignmentDirectory; // Assign param
+    this.submissionDirectory = submissionDirectory; // Assign param
+    initComponents();
     }
 
     /**
@@ -107,8 +116,10 @@ public class StudentManagementJPanel extends javax.swing.JPanel {
 
     private void btnCourseEnrollmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCourseEnrollmentActionPerformed
        // Pass necessary directories and faculty info
-        CourseEnrollmentJPanel enrollmentViewPanel = new CourseEnrollmentJPanel(workArea, loggedInFaculty, courseDirectory, enrollmentDirectory, personDirectory);
-        workArea.add("StudentCourseEnrollmentJPanel", enrollmentViewPanel);
+        CourseEnrollmentJPanel enrollmentViewPanel = new CourseEnrollmentJPanel(workArea, loggedInFaculty,
+                                                                            courseDirectory, enrollmentDirectory, personDirectory,
+                                                                            assignmentDirectory, submissionDirectory); // Pass new dirs
+        workArea.add("StudentCourseEnrollmentJPanel", enrollmentViewPanel); // Referring to ui.StudentManagement.CourseEnrollmentJPanel
         CardLayout layout = (CardLayout) workArea.getLayout();
         layout.next(workArea);
 
@@ -116,7 +127,9 @@ public class StudentManagementJPanel extends javax.swing.JPanel {
 
     private void btnStudentGradingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStudentGradingActionPerformed
         // TODO add your handling code here:
-        StudentGradingJPanel gradingPanel = new StudentGradingJPanel(workArea, loggedInFaculty, courseDirectory, enrollmentDirectory, personDirectory);
+        StudentGradingJPanel gradingPanel = new StudentGradingJPanel(workArea, loggedInFaculty,
+                                                                 courseDirectory, enrollmentDirectory, personDirectory,
+                                                                 assignmentDirectory, submissionDirectory); // Pass new dirs
         workArea.add("StudentGradingJPanel", gradingPanel);
         CardLayout layout = (CardLayout) workArea.getLayout();
         layout.next(workArea);

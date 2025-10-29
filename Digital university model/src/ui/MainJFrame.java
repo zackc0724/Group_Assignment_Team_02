@@ -7,6 +7,8 @@ package ui;
 // Import the correct Auth and Model classes
 import auth.AuthManager;
 import auth.UserAccount;
+import info5100.university.example.model.Assignment;
+import info5100.university.example.model.Submission;
 import model.Admin;
 import model.Course;
 import model.Faculty;
@@ -15,6 +17,8 @@ import model.directory.CourseDirectory;
 import model.directory.EnrollmentDirectory;
 import model.directory.PersonDirectory;
 import ui.admin.AdminWorkAreaJPanel;
+import info5100.university.example.model.directory.AssignmentDirectory;
+import info5100.university.example.model.directory.SubmissionDirectory;
 // We will need to refactor FacultyJPanel and create StudentJPanel
 // import ui.student.StudentWorkAreaJPanel; 
 
@@ -24,6 +28,9 @@ import javax.swing.JPanel;
 import model.Enrollment;
 
 /**
+ * Main application window (JFrame). Handles user login, holds central data directories,
+ * and manages navigation between different user role dashboards using CardLayout.
+ * It also pre-populates the system with initial data.
  *
  * @author zenishborad
  */
@@ -34,6 +41,8 @@ public class MainJFrame extends javax.swing.JFrame {
     private PersonDirectory personDirectory;
     private CourseDirectory courseDirectory;
     private EnrollmentDirectory enrollmentDirectory;
+    private AssignmentDirectory assignmentDirectory;
+    private SubmissionDirectory submissionDirectory;
 
     /**
      * Creates new form MainJFrame
@@ -46,7 +55,8 @@ public class MainJFrame extends javax.swing.JFrame {
         this.personDirectory = new PersonDirectory();
         this.courseDirectory = new CourseDirectory();
         this.enrollmentDirectory = new EnrollmentDirectory();
-
+        this.assignmentDirectory = new AssignmentDirectory();
+        this.submissionDirectory = new SubmissionDirectory();
         // Pre-populate data as required by the assignment
         configureData();
         
@@ -88,11 +98,11 @@ public class MainJFrame extends javax.swing.JFrame {
         Faculty prof1 = personDirectory.getAllFaculty().get(0);
         Faculty prof2 = personDirectory.getAllFaculty().get(1);
 
-        Course c1 = new Course("INFO5100", "App Eng & Dev", "Fall2025", prof1, 50, 6000);
-        Course c2 = new Course("INFO6210", "Data Science", "Fall2025", prof2, 40, 6000);
-        Course c3 = new Course("INFO6150", "Web Design", "Fall2025", prof1, 40, 6000);
-        Course c4 = new Course("CSYE6200", "Concepts of OOP", "Fall2025", prof2, 50, 6000);
-        Course c5 = new Course("INFO5001", "Intro to Info Systems", "Fall2025", prof1, 50, 6000);
+        Course c1 = new Course("INFO5100", "App Eng & Dev", "Fall2025", prof1, 50, 6000.0, 4); // Added 4 credits
+        Course c2 = new Course("INFO6210", "Data Science", "Fall2025", prof2, 40, 6000.0, 4); // Added 4 credits
+        Course c3 = new Course("INFO6150", "Web Design", "Fall2025", prof1, 40, 6000.0, 4); // Added 4 credits
+        Course c4 = new Course("CSYE6200", "Concepts of OOP", "Fall2025", prof2, 50, 6000.0, 4); // Added 4 credits
+        Course c5 = new Course("INFO5001", "Intro to Info Systems", "Fall2025", prof1, 50, 6000.0, 4); // Added 4 credits
         
         courseDirectory.addCourse(c1);
         courseDirectory.addCourse(c2);
@@ -123,6 +133,24 @@ public class MainJFrame extends javax.swing.JFrame {
         
         // Enroll stu1 also in c4 (CSYE6200, taught by f2)
         enrollmentDirectory.addEnrollment(new Enrollment(stu1, c4));
+        
+        // --- Optional: Add Sample Assignments ---
+        // Example for INFO5100
+        assignmentDirectory.addAssignment(new Assignment("INFO5100_A1", "INFO5100", "Assignment 1 - UML", 100.0, 0.25)); // 25% weight
+        assignmentDirectory.addAssignment(new Assignment("INFO5100_A2", "INFO5100", "Assignment 2 - Code", 100.0, 0.35)); // 35% weight
+        assignmentDirectory.addAssignment(new Assignment("INFO5100_Final", "INFO5100", "Final Project", 100.0, 0.40)); // 40% weight
+         // Example for INFO6150
+        assignmentDirectory.addAssignment(new Assignment("INFO6150_HW1", "INFO6150", "Homework 1", 50.0, 0.5));
+        assignmentDirectory.addAssignment(new Assignment("INFO6150_HW2", "INFO6150", "Homework 2", 50.0, 0.5));
+
+
+        // --- Optional: Add Sample Submissions ---
+        // Student s1 submits A1 for INFO5100
+        submissionDirectory.addSubmission(new Submission("S5100A1_S201", "INFO5100_A1", "S201"));
+        // Student s2 submits A1 for INFO5100
+        submissionDirectory.addSubmission(new Submission("S5100A1_S202", "INFO5100_A1", "S202"));
+         // Student s3 submits HW1 for INFO6150
+        submissionDirectory.addSubmission(new Submission("S6150HW1_S203", "INFO6150_HW1", "S203"));
     }
 
     /**
@@ -255,19 +283,22 @@ public class MainJFrame extends javax.swing.JFrame {
             } else if (authManager.isFaculty()) {
                 // *** THIS IS THE CORRECTED LINE ***
                 // We instantiate FacultyJPanel with its new, correct constructor
-                FacultyJPanel facultyPanel = new FacultyJPanel(workArea, authManager, personDirectory, courseDirectory, enrollmentDirectory);
+                FacultyJPanel facultyPanel = new FacultyJPanel(workArea, authManager, personDirectory, courseDirectory, enrollmentDirectory, assignmentDirectory, submissionDirectory); // ADDED DIRS
                 workArea.add("FacultyWorkAreaJPanel", facultyPanel);
                 ((CardLayout) workArea.getLayout()).show(workArea, "FacultyWorkAreaJPanel"); // Use show for clarity
 
             } else if (authManager.isStudent()) {
-                // Find the Student object from PersonDirectory
-                Student student = (Student) personDirectory.findById(user.getLinkedUniversityId());
-                
-                // TODO: Create StudentWorkAreaJPanel
-                JOptionPane.showMessageDialog(this, "Student panel not yet integrated. Coming soon!");
-                
-                // Add back the title label as a placeholder
-                workArea.add(lblTitle, "card2");
+                // *** ADDED STUDENT NAVIGATION ***
+                // Navigate to Student Panel
+                StudentWorkAreaJPanel studentPanel = new StudentWorkAreaJPanel(workArea, authManager, personDirectory, courseDirectory, enrollmentDirectory, assignmentDirectory, submissionDirectory); // ADDED DIRS
+                workArea.add("StudentWorkAreaJPanel", studentPanel);
+                ((CardLayout) workArea.getLayout()).show(workArea, "StudentWorkAreaJPanel");
+
+            } else {
+                 // Should not happen, but handle unknown roles
+                 JOptionPane.showMessageDialog(this, "Unknown user role.", "Login Error", JOptionPane.ERROR_MESSAGE);
+                 // Go back to default view
+                 workArea.add(lblTitle, "card2");
                 ((CardLayout) workArea.getLayout()).show(workArea, "card2");
             }
             

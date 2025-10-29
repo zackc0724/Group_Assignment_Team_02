@@ -5,8 +5,11 @@
 package ui.StudentManagement;
 
 // Import necessary classes
+import info5100.university.example.model.directory.AssignmentDirectory;
+import info5100.university.example.model.directory.SubmissionDirectory;
 import java.awt.CardLayout;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import model.Course;
@@ -16,6 +19,7 @@ import model.Student;
 import model.directory.CourseDirectory;
 import model.directory.EnrollmentDirectory;
 import model.directory.PersonDirectory;
+import ui.TranscriptJPanel;
 
 /**
  *
@@ -28,26 +32,29 @@ public class CourseEnrollmentJPanel extends javax.swing.JPanel {
     private CourseDirectory courseDirectory;
     private EnrollmentDirectory enrollmentDirectory;
     private PersonDirectory personDirectory;
-    private ArrayList<Course> facultyCourses; // To keep track of courses for the combo box
+    private ArrayList<Course> facultyCourses;
+    private AssignmentDirectory assignmentDirectory;
+    private SubmissionDirectory submissionDirectory;// To keep track of courses for the combo box
 
     /**
      * Creates new form CourseEnrollmentJPanel (Refactored Constructor)
      */
-    public CourseEnrollmentJPanel(JPanel workArea, Faculty loggedInFaculty, CourseDirectory courseDirectory, EnrollmentDirectory enrollmentDirectory, PersonDirectory personDirectory) {
-        this.workArea = workArea;
-        this.loggedInFaculty = loggedInFaculty;
-        this.courseDirectory = courseDirectory;
-        this.enrollmentDirectory = enrollmentDirectory;
-        this.personDirectory = personDirectory;
-        this.facultyCourses = new ArrayList<>();
-        initComponents();
-        populateCourseCombo(); // Populate combo box
+    public CourseEnrollmentJPanel(JPanel workArea, Faculty loggedInFaculty, CourseDirectory courseDirectory,
+                            EnrollmentDirectory enrollmentDirectory, PersonDirectory personDirectory,
+                            AssignmentDirectory assignmentDirectory, SubmissionDirectory submissionDirectory) { // Added params
+    this.workArea = workArea;
+    this.loggedInFaculty = loggedInFaculty;
+    this.courseDirectory = courseDirectory;
+    this.enrollmentDirectory = enrollmentDirectory;
+    this.personDirectory = personDirectory;
+    this.assignmentDirectory = assignmentDirectory; // Assign param
+    this.submissionDirectory = submissionDirectory; // Assign param
+    this.facultyCourses = new ArrayList<>();
+    initComponents();
+    populateCourseCombo();
 
-        // Add listener to update table when combo box selection changes
-        cmbCourse.addActionListener(e -> populateEnrolledStudentsTable());
-
-        // Initially populate table for the first selected course (if any)
-        populateEnrolledStudentsTable();
+    cmbCourse.addActionListener(e -> populateEnrolledStudentsTable());
+    populateEnrolledStudentsTable();
     }
 
     /**
@@ -84,7 +91,7 @@ public class CourseEnrollmentJPanel extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tblCourseEnrollment);
 
-        btnViewTranscript.setText("View Transcript");
+        btnViewTranscript.setText("View Selected Student Transcript");
         btnViewTranscript.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnViewTranscriptActionPerformed(evt);
@@ -92,6 +99,7 @@ public class CourseEnrollmentJPanel extends javax.swing.JPanel {
         });
 
         btnProgressReport.setText("Progress Report");
+        btnProgressReport.setEnabled(false);
         btnProgressReport.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnProgressReportActionPerformed(evt);
@@ -153,6 +161,29 @@ public class CourseEnrollmentJPanel extends javax.swing.JPanel {
 
     private void btnViewTranscriptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewTranscriptActionPerformed
         // TODO add your handling code here:
+        int selectedRow = tblCourseEnrollment.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a student from the table first.", "No Student Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Get the Student ID from the selected row (assuming it's in column 0)
+        int modelRow = tblCourseEnrollment.convertRowIndexToModel(selectedRow);
+        String studentId = (String) tblCourseEnrollment.getModel().getValueAt(modelRow, 0);
+
+        // Find the Student object using the ID
+        Student selectedStudent = (Student) personDirectory.findById(studentId);
+
+        if (selectedStudent != null) {
+            // Open the TranscriptJPanel for the selected student
+            // Note: Faculty view might bypass financial holds, or you could add logic here to check student balance if needed.
+            TranscriptJPanel transcriptPanel = new TranscriptJPanel(workArea, selectedStudent, enrollmentDirectory);
+            workArea.add("FacultyViewTranscript_" + selectedStudent.getUniversityId(), transcriptPanel); // Use unique name
+            CardLayout layout = (CardLayout) workArea.getLayout();
+            layout.next(workArea);
+        } else {
+            JOptionPane.showMessageDialog(this, "Could not find details for the selected student.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnViewTranscriptActionPerformed
 
     private void btnProgressReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProgressReportActionPerformed

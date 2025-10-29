@@ -100,4 +100,20 @@ public class PersonDirectory {
         }
         return list;
     }
+    // Method to remove a person by University ID
+    public boolean removePerson(String universityId) {
+        if (universityId == null) return false;
+        Person personToRemove = null;
+        for (Person p : people) {
+            if (p.getUniversityId().equalsIgnoreCase(universityId)) {
+                personToRemove = p;
+                break;
+            }
+        }
+        if (personToRemove != null) {
+            people.remove(personToRemove);
+            return true;
+        }
+        return false; // Person not found
+    }
 }

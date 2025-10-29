@@ -10,8 +10,9 @@ public class Course {
     private double tuitionAmountPerStudent;
     private String syllabusName;
     private boolean enrollmentOpen;
+    private int credits;
 
-    public Course(String courseId, String title, String semester, Faculty faculty, int capacity, double tuitionAmountPerStudent){
+    public Course(String courseId, String title, String semester, Faculty faculty, int capacity, double tuitionAmountPerStudent, int credits){
         this.courseId = courseId;
         this.title = title;
         this.semester = semester;
@@ -20,6 +21,7 @@ public class Course {
         this.tuitionAmountPerStudent = tuitionAmountPerStudent;
         this.syllabusName = null;
         this.enrollmentOpen = false;
+        this.credits = credits;
     }
 
     public String getCourseId(){ return courseId; }
@@ -54,8 +56,16 @@ public class Course {
     public void setEnrollmentOpen(boolean enrollmentOpen) {
         this.enrollmentOpen = enrollmentOpen;
     }
+    
+    public int getCredits() {
+        return credits;
+    }
+    // <-- Optional: ADD SETTER FOR credits -->
+    public void setCredits(int credits) {
+        this.credits = credits;
+    }
     @Override
     public String toString(){
-        return courseId + " - " + title + " (" + semester + ")";
+        return courseId + " - " + title + " (" + semester + ", " + credits + "cr)";
     }
 }

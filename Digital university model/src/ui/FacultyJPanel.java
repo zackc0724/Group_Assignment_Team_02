@@ -7,6 +7,8 @@ package ui;
 // Import new model and auth classes
 import auth.AuthManager;
 import auth.UserAccount;
+import info5100.university.example.model.directory.AssignmentDirectory;
+import info5100.university.example.model.directory.SubmissionDirectory;
 import java.awt.CardLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -36,18 +38,24 @@ public class FacultyJPanel extends javax.swing.JPanel {
     private PersonDirectory personDirectory;
     private CourseDirectory courseDirectory;
     private EnrollmentDirectory enrollmentDirectory;
+    private AssignmentDirectory assignmentDirectory;
+    private SubmissionDirectory submissionDirectory;
     
     private Faculty loggedInFaculty; // Store the logged-in faculty member
 
     /**
      * New constructor to accept the central data directories and auth manager.
      */
-    public FacultyJPanel(JPanel workArea, AuthManager authManager, PersonDirectory personDirectory, CourseDirectory courseDirectory, EnrollmentDirectory enrollmentDirectory) {
+    public FacultyJPanel(JPanel workArea, AuthManager authManager, PersonDirectory personDirectory,
+                       CourseDirectory courseDirectory, EnrollmentDirectory enrollmentDirectory,
+                       AssignmentDirectory assignmentDirectory, SubmissionDirectory submissionDirectory) { // Added new params
         this.workArea = workArea;
         this.authManager = authManager;
         this.personDirectory = personDirectory;
         this.courseDirectory = courseDirectory;
         this.enrollmentDirectory = enrollmentDirectory;
+        this.assignmentDirectory = assignmentDirectory; // Assign new param
+        this.submissionDirectory = submissionDirectory;
         
         // Find the logged-in Faculty object
         UserAccount currentUser = authManager.getCurrentUser();
@@ -172,7 +180,10 @@ public class FacultyJPanel extends javax.swing.JPanel {
 
     private void btnCourseManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCourseManagementActionPerformed
                                                  
-    CourseManagementJPanel coursePanel = new CourseManagementJPanel(workArea, authManager, personDirectory, courseDirectory, enrollmentDirectory, loggedInFaculty);
+    CourseManagementJPanel coursePanel = new CourseManagementJPanel(workArea, authManager, personDirectory,
+                                                                      courseDirectory, enrollmentDirectory,
+                                                                      assignmentDirectory, submissionDirectory, // Pass new directories
+                                                                      loggedInFaculty);
         workArea.add("CourseManagementJPanel", coursePanel);
         CardLayout layout = (CardLayout) workArea.getLayout();
         layout.next(workArea);
@@ -195,12 +206,12 @@ public class FacultyJPanel extends javax.swing.JPanel {
 
     private void btnEnrollmentInsightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnrollmentInsightActionPerformed
                                                    
-    JOptionPane.showMessageDialog(this, "Enrollment Insight Panel not yet refactored.");
-
-        // --- This is what we will do next ---
-        // EnrollmentInsightJPanel insightPanel = new EnrollmentInsightJPanel(workArea, enrollmentDirectory, ...);
-        // workArea.add("EnrollmentInsightJPanel", insightPanel);
-        // ((CardLayout) workArea.getLayout()).next(workArea);
+    EnrollmentInsightJPanel insightPanel = new EnrollmentInsightJPanel(workArea, loggedInFaculty,
+                                                                       courseDirectory, enrollmentDirectory, personDirectory
+                                                                       /*, assignmentDirectory, submissionDirectory */); // Pass if needed later
+        workArea.add("EnrollmentInsightJPanel", insightPanel);
+        CardLayout layout = (CardLayout) workArea.getLayout();
+        layout.next(workArea);
  
 
 
@@ -209,7 +220,9 @@ public class FacultyJPanel extends javax.swing.JPanel {
     private void btnStudentManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStudentManagementActionPerformed
                                                  
     // This will now work
-        StudentManagementJPanel studentPanel = new StudentManagementJPanel(workArea, loggedInFaculty, authManager, personDirectory, courseDirectory, enrollmentDirectory);
+        StudentManagementJPanel studentPanel = new StudentManagementJPanel(workArea, loggedInFaculty, authManager,
+                                                                       personDirectory, courseDirectory, enrollmentDirectory,
+                                                                       assignmentDirectory, submissionDirectory); // Pass new directories
         workArea.add("StudentManagementJPanel", studentPanel);
         CardLayout layout = (CardLayout) workArea.getLayout();
         layout.next(workArea);
@@ -218,10 +231,12 @@ public class FacultyJPanel extends javax.swing.JPanel {
 
     private void btnPerformanceReportingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPerformanceReportingActionPerformed
                                                          
-    JOptionPane.showMessageDialog(this, "Performance Reporting Panel not yet refactored.");
+    //JOptionPane.showMessageDialog(this, "Performance Reporting Panel not yet refactored.");
 
         // --- This is what we will do next ---
-        PerformanceReportingJPanel reportPanel = new PerformanceReportingJPanel(workArea, loggedInFaculty, courseDirectory, enrollmentDirectory, personDirectory);
+        PerformanceReportingJPanel reportPanel = new PerformanceReportingJPanel(workArea, loggedInFaculty,
+                                                                            courseDirectory, enrollmentDirectory, personDirectory,
+                                                                            assignmentDirectory, submissionDirectory); // Pass new directories
         workArea.add("PerformanceReportingJPanel", reportPanel);
         CardLayout layout = (CardLayout) workArea.getLayout();
         layout.next(workArea);

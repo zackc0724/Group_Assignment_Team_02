@@ -4,85 +4,69 @@
  */
 package ui.StudentManagement;
 
-// Import necessary classes
+import info5100.university.example.model.Assignment;
+import info5100.university.example.model.Submission;
+import info5100.university.example.model.directory.AssignmentDirectory;
+import info5100.university.example.model.directory.SubmissionDirectory;
 import java.awt.CardLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import java.util.Collections;
+import java.util.List;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import model.Course;
-import model.Enrollment;
-import model.Faculty;
-import model.Student;
-import model.directory.CourseDirectory;
-import model.directory.EnrollmentDirectory;
-import model.directory.PersonDirectory;
+import javax.swing.table.DefaultTableCellRenderer;
+import model.*; // Import models
+import model.directory.*; // Import directories
 
-/**
- *
- * @author zenishborad
- */
-public class StudentGradingJPanel extends javax.swing.JPanel {
+public class StudentGradingJPanel extends JPanel { // Ensure only one class declaration
 
+    //<editor-fold defaultstate="collapsed" desc="Variable Declarations - DO NOT MODIFY">
+    // Variables declaration - Manually keep this section synced with NetBeans Designer Variables
+    // These should match the "Variable Names" you set in the designer
+    
+    // End of variables declaration
+    //</editor-fold>
+
+    // --- Non-UI Member Variables ---
     private JPanel workArea;
     private Faculty loggedInFaculty;
     private CourseDirectory courseDirectory;
     private EnrollmentDirectory enrollmentDirectory;
     private PersonDirectory personDirectory;
-    private ArrayList<Course> facultyCourses; // Courses for the course combo box
-    private ArrayList<Enrollment> selectedCourseEnrollments; // Enrollments for the table
-    private Enrollment selectedEnrollment = null; // Currently selected enrollment for grading
+    private AssignmentDirectory assignmentDirectory;
+    private SubmissionDirectory submissionDirectory;
 
-    /**
-     * Creates new form StudentGradingJPanel (Refactored)
-     */
-    public StudentGradingJPanel(JPanel workArea, Faculty loggedInFaculty, CourseDirectory courseDirectory, EnrollmentDirectory enrollmentDirectory, PersonDirectory personDirectory) {
+    private Course selectedCourse = null;
+    private Assignment selectedAssignmentForEditing = null;
+    private Assignment selectedAssignmentForGrading = null;
+    private Submission selectedSubmissionForGrading = null;
+    private static final DecimalFormat df = new DecimalFormat("0.00");
+    
+    
+
+    // --- Constructor ---
+    public StudentGradingJPanel(JPanel workArea, Faculty loggedInFaculty, CourseDirectory courseDirectory,
+                                EnrollmentDirectory enrollmentDirectory, PersonDirectory personDirectory,
+                                AssignmentDirectory assignmentDirectory, SubmissionDirectory submissionDirectory) {
         this.workArea = workArea;
         this.loggedInFaculty = loggedInFaculty;
         this.courseDirectory = courseDirectory;
         this.enrollmentDirectory = enrollmentDirectory;
         this.personDirectory = personDirectory;
-        this.facultyCourses = new ArrayList<>();
-        this.selectedCourseEnrollments = new ArrayList<>();
+        this.assignmentDirectory = assignmentDirectory;
+        this.submissionDirectory = submissionDirectory;
 
-        initComponents(); // Initialize NetBeans components first
-
-        // Customize components after initComponents()
-        setupComponents();
-
-        populateCourseCombo(); // Populate courses
-
-        // Add listener to update table when course selection changes
-        cmbCourseSelect.addActionListener(e -> populateStudentTableForCourse());
-
-        // Add listener to table to load selected student's grade
-        tblStudentsAndGrades.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tblStudentsMouseClicked(evt);
-            }
-        });
-
-        // Initially populate table for the first course (if any)
-        populateStudentTableForCourse();
+        initComponents(); // Calls the NetBeans generated UI code
+        setupSpinners();
+        setupListeners();
+        populateCourseCombo();
     }
 
-    // Method to setup components not easily done in the designer
-    private void setupComponents() {
-        // Populate Grade ComboBox
-        cmbGradeSelect.setModel(new DefaultComboBoxModel<>(new String[] {
-            "In Progress", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "F"
-        }));
-        cmbGradeSelect.setEnabled(false); // Disable until a student is selected
-
-        // Disable buttons that aren't implemented yet based on our simple model
-        btnTotalPercentage.setEnabled(false);
-        btnLetterGrade.setEnabled(false);
-        btnRankStudents.setEnabled(false);
-        txtTotalPercentage.setEditable(false);
-        txtLetterGrade.setEditable(false);
-    }
-
+    // --- Setup Methods ---
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -93,277 +77,659 @@ public class StudentGradingJPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblStudentsAndGrades = new javax.swing.JTable();
-        btnTotalPercentage = new javax.swing.JButton();
-        btnUpdateGrade = new javax.swing.JButton();
-        btnLetterGrade = new javax.swing.JButton();
-        btnRankStudents = new javax.swing.JButton();
-        lblTotalPercentage = new javax.swing.JLabel();
-        lblLetterGrade = new javax.swing.JLabel();
-        txtTotalPercentage = new javax.swing.JTextField();
-        txtLetterGrade = new javax.swing.JTextField();
         lblCourseSelect = new javax.swing.JLabel();
+        lblAssignMgmt = new javax.swing.JLabel();
+        scrollPaneAssignments = new javax.swing.JScrollPane();
+        tblAssignments = new javax.swing.JTable();
+        scrollPaneSubmissions = new javax.swing.JScrollPane();
+        tblSubmissions = new javax.swing.JTable();
+        lblAssignTitle = new javax.swing.JLabel();
+        lblMaxScore = new javax.swing.JLabel();
+        lblWeight = new javax.swing.JLabel();
+        btnAddAssign = new javax.swing.JButton();
+        btnUpdateAssign = new javax.swing.JButton();
+        btnDeleteAssign = new javax.swing.JButton();
+        btnClearAssignForm = new javax.swing.JButton();
+        lblAssignmentStatus = new javax.swing.JLabel();
+        lblGradeSub = new javax.swing.JLabel();
+        lblSelectAssignGrade = new javax.swing.JLabel();
+        lblSelectedSubmissionInfo = new javax.swing.JLabel();
+        lblScore = new javax.swing.JLabel();
+        txtScore = new javax.swing.JTextField();
+        btnGradeSubmission = new javax.swing.JButton();
+        lblSubmissionStatus = new javax.swing.JLabel();
+        btnBack = new javax.swing.JButton();
         cmbCourseSelect = new javax.swing.JComboBox<>();
-        lblSelectStudent = new javax.swing.JLabel();
-        lblCurrentGrade = new javax.swing.JLabel();
-        cmbGradeSelect = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
+        spinMaxScore = new javax.swing.JSpinner();
+        txtAssignTitle = new javax.swing.JTextField();
+        spinWeight = new javax.swing.JSpinner();
+        jSeparator1 = new javax.swing.JSeparator();
+        cmbAssignmentSelectForGrading = new javax.swing.JComboBox<>();
 
-        tblStudentsAndGrades.setModel(new javax.swing.table.DefaultTableModel(
+        lblCourseSelect.setText("Select Course");
+
+        lblAssignMgmt.setText("Manage Assignments for selected course");
+
+        tblAssignments.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Assignmennt", "Max Marks", "Marks Obtained", "Grade", "Weight %"
+                "ID", "Title", "Max Score", "Weight (%)"
             }
-        ));
-        jScrollPane1.setViewportView(tblStudentsAndGrades);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
 
-        btnTotalPercentage.setText("Compute Total %");
-
-        btnUpdateGrade.setText("Update Grade");
-        btnUpdateGrade.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUpdateGradeActionPerformed(evt);
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
             }
-        });
 
-        btnLetterGrade.setText("Compute Letter Grade");
-
-        btnRankStudents.setText("Rank Students");
-
-        lblTotalPercentage.setText("Total %");
-
-        lblLetterGrade.setText("Letter grade");
-
-        lblCourseSelect.setText("Course select");
-
-        cmbCourseSelect.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        lblSelectStudent.setText("student selected");
-
-        lblCurrentGrade.setText("current grade");
-
-        cmbGradeSelect.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jButton1.setText("back");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
+        scrollPaneAssignments.setViewportView(tblAssignments);
+
+        tblSubmissions.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Submission", "Student ID", "Student Name", "Score"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        scrollPaneSubmissions.setViewportView(tblSubmissions);
+
+        lblAssignTitle.setText("Title");
+
+        lblMaxScore.setText("Max Score");
+
+        lblWeight.setText("Weight (%)");
+
+        btnAddAssign.setText("Add");
+
+        btnUpdateAssign.setText("Update");
+        btnUpdateAssign.setEnabled(false);
+
+        btnDeleteAssign.setText("Delete");
+        btnDeleteAssign.setEnabled(false);
+
+        btnClearAssignForm.setText("Clear");
+
+        lblAssignmentStatus.setText("Text: ");
+
+        lblGradeSub.setText("Grade Submissions");
+
+        lblSelectAssignGrade.setText("Select Assignments:");
+
+        lblSelectedSubmissionInfo.setText("Select Submission from Table Above");
+
+        lblScore.setText("Enter Score:");
+
+        txtScore.setActionCommand("<Not Set>");
+
+        btnGradeSubmission.setText("Save Grade");
+        btnGradeSubmission.setEnabled(false);
+
+        lblSubmissionStatus.setText("Text:");
+
+        btnBack.setText("Back");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(360, 360, 360)
-                                .addComponent(btnRankStudents, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
-                                .addGap(74, 74, 74)))
-                        .addContainerGap())
+                        .addGap(29, 29, 29)
+                        .addComponent(lblCourseSelect)
+                        .addGap(18, 18, 18)
+                        .addComponent(cmbCourseSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(38, 38, 38)
+                        .addComponent(lblAssignMgmt))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnUpdateGrade, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnTotalPercentage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnLetterGrade)
-                        .addGap(80, 80, 80))
-                    .addGroup(layout.createSequentialGroup()
+                        .addGap(22, 22, 22)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblTotalPercentage)
-                            .addComponent(lblLetterGrade))
-                        .addGap(28, 28, 28)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtTotalPercentage, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtLetterGrade, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(63, 63, 63)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblSelectStudent)
                             .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addComponent(btnAddAssign)
+                                        .addGap(51, 51, 51)
+                                        .addComponent(btnUpdateAssign)
+                                        .addGap(49, 49, 49)
+                                        .addComponent(btnDeleteAssign))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                                .addComponent(lblAssignTitle)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(txtAssignTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(81, 81, 81))
+                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                                .addComponent(lblMaxScore)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(spinMaxScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(150, 150, 150)))
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(lblAssignmentStatus)
+                                            .addComponent(lblWeight)))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addComponent(lblGradeSub)
+                                        .addGap(40, 40, 40)
+                                        .addComponent(lblSelectAssignGrade)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(cmbAssignmentSelectForGrading, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblCourseSelect)
-                                    .addComponent(lblCurrentGrade))
-                                .addGap(52, 52, 52)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(cmbGradeSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cmbCourseSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 101, Short.MAX_VALUE))))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addGap(245, 245, 245))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(17, 17, 17)
+                                        .addComponent(btnClearAssignForm))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(18, 18, 18)
+                                        .addComponent(spinWeight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(scrollPaneAssignments, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(scrollPaneSubmissions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnGradeSubmission)
+                                .addGap(44, 44, 44)
+                                .addComponent(lblSubmissionStatus)
+                                .addGap(119, 119, 119)
+                                .addComponent(btnBack))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblSelectedSubmissionInfo)
+                                .addGap(18, 18, 18)
+                                .addComponent(lblScore)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(txtScore, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(156, Short.MAX_VALUE))
+            .addComponent(jSeparator1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(39, 39, 39)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(16, 16, 16)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnTotalPercentage)
-                    .addComponent(btnLetterGrade))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnUpdateGrade)
-                    .addComponent(btnRankStudents))
-                .addGap(51, 51, 51)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblTotalPercentage)
-                    .addComponent(txtTotalPercentage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblCourseSelect)
+                    .addComponent(lblAssignMgmt)
                     .addComponent(cmbCourseSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(lblSelectStudent)
-                .addGap(7, 7, 7)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblLetterGrade)
-                    .addComponent(txtLetterGrade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(6, 6, 6)
+                .addComponent(scrollPaneAssignments, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblCurrentGrade)
-                    .addComponent(cmbGradeSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lblAssignTitle)
+                    .addComponent(lblWeight)
+                    .addComponent(txtAssignTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(spinWeight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblMaxScore)
+                    .addComponent(lblAssignmentStatus)
+                    .addComponent(spinMaxScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAddAssign)
+                    .addComponent(btnUpdateAssign)
+                    .addComponent(btnDeleteAssign)
+                    .addComponent(btnClearAssignForm))
+                .addGap(8, 8, 8)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblGradeSub)
+                    .addComponent(lblSelectAssignGrade)
+                    .addComponent(cmbAssignmentSelectForGrading, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addComponent(scrollPaneSubmissions, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblSelectedSubmissionInfo)
+                    .addComponent(lblScore)
+                    .addComponent(txtScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnGradeSubmission)
+                    .addComponent(lblSubmissionStatus)
+                    .addComponent(btnBack))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnUpdateGradeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateGradeActionPerformed
-        // TODO add your handling code here:
-        if (selectedEnrollment == null) {
-            JOptionPane.showMessageDialog(this, "Please select a student from the table first.");
-            return;
-        }
-
-        String selectedGrade = (String) cmbGradeSelect.getSelectedItem();
-        if (selectedGrade == null) {
-            JOptionPane.showMessageDialog(this, "Please select a grade from the dropdown.");
-            return;
-        }
-
-        // Update the grade in the selected Enrollment object
-        selectedEnrollment.setGrade(selectedGrade);
-
-        // Refresh the table to show the new grade
-        populateStudentTableForCourse();
-
-        // Optionally clear selection and disable grade combo
-        tblStudentsAndGrades.clearSelection();
-        selectedEnrollment = null;
-        cmbGradeSelect.setSelectedItem("In Progress");
-        cmbGradeSelect.setEnabled(false);
-
-        JOptionPane.showMessageDialog(this, "Grade updated successfully.");
-    }//GEN-LAST:event_btnUpdateGradeActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-        workArea.remove(this);
-        CardLayout layout = (CardLayout) workArea.getLayout();
-        layout.previous(workArea);
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnLetterGrade;
-    private javax.swing.JButton btnRankStudents;
-    private javax.swing.JButton btnTotalPercentage;
-    private javax.swing.JButton btnUpdateGrade;
-    private javax.swing.JComboBox<String> cmbCourseSelect;
-    private javax.swing.JComboBox<String> cmbGradeSelect;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton btnAddAssign;
+    private javax.swing.JButton btnBack;
+    private javax.swing.JButton btnClearAssignForm;
+    private javax.swing.JButton btnDeleteAssign;
+    private javax.swing.JButton btnGradeSubmission;
+    private javax.swing.JButton btnUpdateAssign;
+    private javax.swing.JComboBox<Assignment> cmbAssignmentSelectForGrading;
+    private javax.swing.JComboBox<Course> cmbCourseSelect;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel lblAssignMgmt;
+    private javax.swing.JLabel lblAssignTitle;
+    private javax.swing.JLabel lblAssignmentStatus;
     private javax.swing.JLabel lblCourseSelect;
-    private javax.swing.JLabel lblCurrentGrade;
-    private javax.swing.JLabel lblLetterGrade;
-    private javax.swing.JLabel lblSelectStudent;
-    private javax.swing.JLabel lblTotalPercentage;
-    private javax.swing.JTable tblStudentsAndGrades;
-    private javax.swing.JTextField txtLetterGrade;
-    private javax.swing.JTextField txtTotalPercentage;
+    private javax.swing.JLabel lblGradeSub;
+    private javax.swing.JLabel lblMaxScore;
+    private javax.swing.JLabel lblScore;
+    private javax.swing.JLabel lblSelectAssignGrade;
+    private javax.swing.JLabel lblSelectedSubmissionInfo;
+    private javax.swing.JLabel lblSubmissionStatus;
+    private javax.swing.JLabel lblWeight;
+    private javax.swing.JScrollPane scrollPaneAssignments;
+    private javax.swing.JScrollPane scrollPaneSubmissions;
+    private javax.swing.JSpinner spinMaxScore;
+    private javax.swing.JSpinner spinWeight;
+    private javax.swing.JTable tblAssignments;
+    private javax.swing.JTable tblSubmissions;
+    private javax.swing.JTextField txtAssignTitle;
+    private javax.swing.JTextField txtScore;
     // End of variables declaration//GEN-END:variables
-private void tblStudentsMouseClicked(java.awt.event.MouseEvent evt) {
-        int selectedRow = tblStudentsAndGrades.getSelectedRow();
-        if (selectedRow >= 0) {
-            // Find the corresponding Enrollment object
-            // We store the actual Enrollment object in the first column now
-            selectedEnrollment = (Enrollment) tblStudentsAndGrades.getValueAt(selectedRow, 0);
-
-            if (selectedEnrollment != null) {
-                // Enable the grade combo box and set its value
-                cmbGradeSelect.setEnabled(true);
-                cmbGradeSelect.setSelectedItem(selectedEnrollment.getGrade());
-            } else {
-                 // Should not happen if table population is correct
-                cmbGradeSelect.setEnabled(false);
-                selectedEnrollment = null;
-            }
-        } else {
-            cmbGradeSelect.setEnabled(false);
-             selectedEnrollment = null;
-        }
+private void setupSpinners() {
+        // Set the number models for the spinners AFTER initComponents() has created them
+         spinMaxScore.setModel(new SpinnerNumberModel(100.0, 0.0, 10000.0, 1.0));
+         spinWeight.setModel(new SpinnerNumberModel(10.0, 0.1, 100.0, 1.0));
     }
-private void populateCourseCombo() {
+
+    private void setupListeners() {
+        // Add action listeners to components AFTER initComponents() has created them
+        cmbCourseSelect.addActionListener(e -> {
+            selectedCourse = (Course) cmbCourseSelect.getSelectedItem();
+            clearAssignmentForm();
+            populateAssignmentsTable();
+            populateAssignmentComboForGrading();
+        });
+
+        tblAssignments.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) { loadSelectedAssignmentForEditing(); }
+        });
+
+        btnAddAssign.addActionListener(e -> addAssignment());
+        btnUpdateAssign.addActionListener(e -> updateAssignment());
+        btnDeleteAssign.addActionListener(e -> deleteAssignment());
+        btnClearAssignForm.addActionListener(e -> clearAssignmentForm());
+
+        cmbAssignmentSelectForGrading.addActionListener(e -> {
+            selectedAssignmentForGrading = (Assignment) cmbAssignmentSelectForGrading.getSelectedItem();
+            clearSubmissionGradingForm();
+            populateSubmissionsTable();
+        });
+
+        tblSubmissions.addMouseListener(new MouseAdapter() {
+             @Override public void mouseClicked(MouseEvent e) { loadSelectedSubmissionForGrading(); }
+        });
+
+        btnGradeSubmission.addActionListener(e -> gradeSubmission());
+        btnBack.addActionListener(e -> goBack());
+    }
+
+    // --- Data Population Methods ---
+     private void populateCourseCombo() {
         cmbCourseSelect.removeAllItems();
-        facultyCourses.clear();
-
-        for (Course course : courseDirectory.getCourses()) {
-            if (course.getFaculty() != null && course.getFaculty().getUniversityId().equals(loggedInFaculty.getUniversityId())) {
-                facultyCourses.add(course);
-                cmbCourseSelect.addItem(course.toString());
+        List<Course> facultyCourses = new ArrayList<>();
+        // Ensure loggedInFaculty is not null before accessing its methods
+        if (loggedInFaculty != null) {
+            for (Course course : courseDirectory.getCourses()) {
+                if (course.getFaculty() != null && course.getFaculty().getUniversityId().equals(loggedInFaculty.getUniversityId())) {
+                     facultyCourses.add(course);
+                }
             }
+        }
+        // Use DefaultComboBoxModel for type safety
+        DefaultComboBoxModel<Course> courseModel = new DefaultComboBoxModel<>(facultyCourses.toArray(new Course[0]));
+        cmbCourseSelect.setModel(courseModel); // Use the type-safe model
+
+        if (cmbCourseSelect.getItemCount() > 0) {
+            cmbCourseSelect.setSelectedIndex(0); // This will trigger the action listener to load assignments/submissions
+        } else {
+             // Handle case where faculty teaches no courses
+             selectedCourse = null;
+             populateAssignmentsTable(); // Clear assignment table
+             populateAssignmentComboForGrading(); // Clear assignment dropdown & submission table
+             JOptionPane.showMessageDialog(this,"You are not currently assigned to teach any courses.","No Courses", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
-    private void populateStudentTableForCourse() {
-        DefaultTableModel model = (DefaultTableModel) tblStudentsAndGrades.getModel();
+
+    private void populateAssignmentsTable() {
+        DefaultTableModel model = (DefaultTableModel) tblAssignments.getModel();
         model.setRowCount(0);
-        selectedCourseEnrollments.clear(); // Clear the list of enrollments for the table
-        selectedEnrollment = null; // Clear selected enrollment
-        cmbGradeSelect.setEnabled(false); // Disable grade selection
+        if(lblAssignmentStatus != null) lblAssignmentStatus.setText("..."); // Reset status if label exists
 
-        int selectedCourseIndex = cmbCourseSelect.getSelectedIndex();
-        if (selectedCourseIndex < 0) {
-            return; // No course selected
+        if (selectedCourse == null) return; // Don't proceed if no course selected
+
+        List<Assignment> assignments = assignmentDirectory.findAssignmentsByCourse(selectedCourse.getCourseId());
+        for (Assignment a : assignments) {
+            model.addRow(new Object[]{
+                a, // Store the Assignment object itself in the first column
+                a.getTitle(),
+                a.getMaxScore(),
+                a.getWeightPercentage() * 100.0 // Display weight as percentage
+            });
         }
 
-        Course selectedCourse = facultyCourses.get(selectedCourseIndex);
-
-        // Find enrollments for the selected course
-        for (Enrollment enrollment : enrollmentDirectory.getEnrollments()) {
-            if (enrollment.getCourse().getCourseId().equals(selectedCourse.getCourseId())) {
-                selectedCourseEnrollments.add(enrollment); // Add to our list
-                Student student = enrollment.getStudent();
-                if (student != null) {
-                    Object[] row = new Object[3];
-                    row[0] = enrollment; // Store the Enrollment object itself
-                    row[1] = student.getName();
-                    row[2] = enrollment.getGrade(); // Display current grade
-                    model.addRow(row);
-                }
-            }
-        }
-        
-        // Custom renderer to display Student ID from Enrollment object in the first column
-        tblStudentsAndGrades.getColumnModel().getColumn(0).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+        // Custom renderer for the first (ID) column to display Assignment ID
+        tblAssignments.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
-            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                if (value instanceof Enrollment) {
-                    value = ((Enrollment) value).getStudent().getUniversityId();
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                if (value instanceof Assignment) {
+                    value = ((Assignment) value).getAssignmentId(); // Display the ID string
+                } else {
+                    value = ""; // Handle unexpected value types
                 }
+                // Let the default renderer handle the actual display of the string
                 return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
         });
+         clearAssignmentForm(); // Clear the form after refreshing table
+    }
+
+    private void populateAssignmentComboForGrading() {
+        // Use DefaultComboBoxModel for type safety
+        DefaultComboBoxModel<Assignment> assignmentComboModel = new DefaultComboBoxModel<>();
+        // IMPORTANT: Ensure cmbAssignmentSelectForGrading is declared as JComboBox<Assignment> at the top
+        cmbAssignmentSelectForGrading.setModel(assignmentComboModel); // Set model immediately
+        cmbAssignmentSelectForGrading.setRenderer(new DefaultListCellRenderer()); // Reset renderer
+
+        if (selectedCourse == null) {
+            cmbAssignmentSelectForGrading.setEnabled(false);
+            populateSubmissionsTable(); // Clear submissions if no course selected
+            return;
+        }
+
+        List<Assignment> assignments = assignmentDirectory.findAssignmentsByCourse(selectedCourse.getCourseId());
+
+        if (assignments.isEmpty()) {
+             cmbAssignmentSelectForGrading.setEnabled(false);
+             assignmentComboModel.addElement(null); // Add null placeholder AFTER setting model
+             cmbAssignmentSelectForGrading.setRenderer(new DefaultListCellRenderer() { // Custom renderer for null
+                  @Override
+                 public java.awt.Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                     JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                     if (value == null) {
+                         label.setText("-- No Assignments --");
+                     } // Let default handle non-null Assignment objects
+                      return label;
+                 }
+             });
+             selectedAssignmentForGrading = null;
+             populateSubmissionsTable();
+        } else {
+             cmbAssignmentSelectForGrading.setEnabled(true);
+             // Populate the existing model
+             for(Assignment a : assignments){
+                 assignmentComboModel.addElement(a);
+             }
+
+            // Select the first item which triggers its action listener
+            if (cmbAssignmentSelectForGrading.getItemCount() > 0) {
+                 cmbAssignmentSelectForGrading.setSelectedIndex(0);
+            } else { // Should not happen if assignments list wasn't empty
+                 selectedAssignmentForGrading = null;
+                 populateSubmissionsTable();
+            }
+        }
+    }
+
+
+    private void populateSubmissionsTable() {
+        DefaultTableModel model = (DefaultTableModel) tblSubmissions.getModel();
+        model.setRowCount(0);
+        if(lblSubmissionStatus != null) lblSubmissionStatus.setText("...");
+        clearSubmissionGradingForm();
+
+        // Check if an assignment is selected in the grading dropdown
+        // Update state variable based on current dropdown selection
+        Object selectedItem = cmbAssignmentSelectForGrading.getSelectedItem();
+        selectedAssignmentForGrading = (selectedItem instanceof Assignment) ? (Assignment) selectedItem : null;
+
+        if (selectedAssignmentForGrading == null || selectedCourse == null) {
+            return; // Exit if no valid assignment is selected for grading
+        }
+
+
+        // Find students enrolled in the selected course
+        List<Enrollment> enrollments = enrollmentDirectory.getEnrollments().stream()
+                .filter(en -> en.getCourse().getCourseId().equals(selectedCourse.getCourseId()))
+                .toList();
+
+        for (Enrollment enrollment : enrollments) {
+            Student student = enrollment.getStudent();
+             if (student == null) continue; // Skip if enrollment has no student
+
+            // Find if this student has a submission for the selected assignment
+            Submission submission = submissionDirectory.findSubmissionByStudentAndAssignment(
+                                        student.getUniversityId(), selectedAssignmentForGrading.getAssignmentId());
+
+            Object[] row = new Object[4];
+            row[0] = submission; // Store Submission object (can be null if not submitted)
+            row[1] = student.getUniversityId();
+            row[2] = student.getName();
+            // Display score or "Ungraded"
+            row[3] = (submission != null && submission.getScore() != null) ? submission.getScore() : "Ungraded";
+            model.addRow(row);
+        }
+
+        // Custom renderer for the first (Submission) column
+         tblSubmissions.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                String displayValue;
+                if (value instanceof Submission) {
+                     // Display something meaningful, like the ID or just "Submitted"
+                     displayValue = ((Submission) value).getSubmissionId(); // Example: Display ID
+                     // Or check submission date: displayValue = "Submitted";
+                } else {
+                    displayValue = "Not Submitted"; // If the value is null
+                }
+                // Use the superclass renderer to display the calculated string
+                return super.getTableCellRendererComponent(table, displayValue, isSelected, hasFocus, row, column);
+            }
+        });
+    }
+
+
+    // --- Form Handling Methods ---
+    private void loadSelectedAssignmentForEditing() {
+         int selectedRow = tblAssignments.getSelectedRow();
+        if (selectedRow >= 0) {
+            // Convert view index to model index in case table is sorted/filtered later
+            int modelRow = tblAssignments.convertRowIndexToModel(selectedRow);
+            Object value = tblAssignments.getModel().getValueAt(modelRow, 0); // Get object from model
+
+            if (value instanceof Assignment){ // Check if it's an Assignment object
+                 selectedAssignmentForEditing = (Assignment) value; // Cast and store
+                 // Populate fields from the selected assignment object
+                 txtAssignTitle.setText(selectedAssignmentForEditing.getTitle());
+                 spinMaxScore.setValue(selectedAssignmentForEditing.getMaxScore());
+                 spinWeight.setValue(selectedAssignmentForEditing.getWeightPercentage() * 100.0);
+                 // Enable/disable buttons for editing state
+                 btnAddAssign.setEnabled(false);
+                 btnUpdateAssign.setEnabled(true);
+                 btnDeleteAssign.setEnabled(true);
+                 lblAssignmentStatus.setText("Editing: " + selectedAssignmentForEditing.getAssignmentId());
+            } else {
+                 // Should not happen if table is populated correctly, but handle defensively
+                 clearAssignmentForm();
+                 lblAssignmentStatus.setText("Error: Selected item is not an assignment.");
+            }
+        } else {
+             // No row selected, clear form
+             clearAssignmentForm();
+        }
+    }
+
+
+    private void clearAssignmentForm() {
+        txtAssignTitle.setText("");
+        spinMaxScore.setValue(100.0); // Reset to default
+        spinWeight.setValue(10.0);  // Reset to default
+        tblAssignments.clearSelection(); // Deselect row in table
+        selectedAssignmentForEditing = null; // Clear state variable
+        // Reset button states: Enable Add if a course is selected, disable Update/Delete
+        btnAddAssign.setEnabled(selectedCourse != null);
+        btnUpdateAssign.setEnabled(false);
+        btnDeleteAssign.setEnabled(false);
+        if(lblAssignmentStatus != null) lblAssignmentStatus.setText("..."); // Reset status label
+    }
+
+     private void loadSelectedSubmissionForGrading() {
+         int selectedRow = tblSubmissions.getSelectedRow();
+        if (selectedRow >= 0) {
+            int modelRow = tblSubmissions.convertRowIndexToModel(selectedRow);
+             // Ensure getValueAt returns a Submission object or null
+            Object subValue = tblSubmissions.getModel().getValueAt(modelRow, 0);
+            selectedSubmissionForGrading = (subValue instanceof Submission) ? (Submission) subValue : null; // Check type
+
+            String studentId = (String) tblSubmissions.getModel().getValueAt(modelRow, 1);
+            String studentName = (String) tblSubmissions.getModel().getValueAt(modelRow, 2);
+
+            if (selectedSubmissionForGrading != null) { // Submission object exists
+                lblSelectedSubmissionInfo.setText("Grading: " + studentName + " (" + studentId + ")");
+                txtScore.setEnabled(true); // Enable score entry
+                btnGradeSubmission.setEnabled(true); // Enable save button
+                // Populate score field if already graded
+                txtScore.setText(selectedSubmissionForGrading.getScore() != null ? df.format(selectedSubmissionForGrading.getScore()) : "");
+                lblSubmissionStatus.setText("Ready to grade.");
+            } else { // No Submission object (student hasn't submitted)
+                 lblSelectedSubmissionInfo.setText("No submission from: " + studentName + " (" + studentId + ")");
+                 clearSubmissionGradingFormPartially(); // Disable grading fields
+                 lblSubmissionStatus.setText("Student has not submitted.");
+            }
+        } else {
+             // No row selected
+             clearSubmissionGradingForm();
+        }
+    }
+
+      // Clears only grading fields, keeps selection info label intact
+      private void clearSubmissionGradingFormPartially() {
+         selectedSubmissionForGrading = null; // Clear object state
+         txtScore.setText("");
+         txtScore.setEnabled(false); // Disable score entry
+         btnGradeSubmission.setEnabled(false); // Disable save button
+         if(lblSubmissionStatus != null) lblSubmissionStatus.setText("..."); // Reset status
+     }
+
+     // Clears grading fields AND resets the selection info label
+     private void clearSubmissionGradingForm() {
+         tblSubmissions.clearSelection(); // Deselect row in table
+         clearSubmissionGradingFormPartially(); // Clear fields/state
+         // Reset selection info label fully
+         if(lblSelectedSubmissionInfo != null) lblSelectedSubmissionInfo.setText("Select Submission from Table Above");
+     }
+
+
+    // --- Action Methods ---
+    private void addAssignment() {
+        if (selectedCourse == null) { lblAssignmentStatus.setText("Error: No course selected."); return; }
+        String title = txtAssignTitle.getText().trim(); double maxScore = (Double) spinMaxScore.getValue(); double weightPercent = (Double) spinWeight.getValue();
+        if (title.isEmpty()) { lblAssignmentStatus.setText("Error: Title required."); return; }
+        if (maxScore <= 0) { lblAssignmentStatus.setText("Error: Max score must be positive."); return; }
+        if (weightPercent <= 0 || weightPercent > 100) { lblAssignmentStatus.setText("Error: Weight must be > 0 and <= 100."); return; }
+
+        double weightDecimal = weightPercent / 100.0; double currentTotalWeight = assignmentDirectory.getTotalWeightForCourse(selectedCourse.getCourseId());
+        if (currentTotalWeight + weightDecimal > 1.001) { lblAssignmentStatus.setText("Error: Total weight exceeds 100%. Current: " + df.format(currentTotalWeight * 100.0) + "%"); return; }
+
+        String assignmentId = selectedCourse.getCourseId() + "_A" + System.currentTimeMillis() % 1000;
+        while(assignmentDirectory.findAssignmentById(assignmentId) != null) assignmentId = selectedCourse.getCourseId() + "_A" + (System.currentTimeMillis() + 1) % 1000; // Regenerate if collision
+
+        Assignment newAssignment = new Assignment(assignmentId, selectedCourse.getCourseId(), title, maxScore, weightDecimal);
+        assignmentDirectory.addAssignment(newAssignment);
+        populateAssignmentsTable(); populateAssignmentComboForGrading(); clearAssignmentForm();
+        lblAssignmentStatus.setText("Assignment '" + title + "' added.");
+    }
+
+    private void updateAssignment() {
+         if (selectedAssignmentForEditing == null) { lblAssignmentStatus.setText("Error: No assignment selected."); return; }
+         String title = txtAssignTitle.getText().trim(); double maxScore = (Double) spinMaxScore.getValue(); double weightPercent = (Double) spinWeight.getValue();
+         if (title.isEmpty() || maxScore <= 0 || weightPercent <= 0 || weightPercent > 100) { lblAssignmentStatus.setText("Error: Invalid input."); return; }
+
+         double weightDecimal = weightPercent / 100.0; double currentTotalWeight = assignmentDirectory.getTotalWeightForCourse(selectedCourse.getCourseId());
+         double weightDifference = weightDecimal - selectedAssignmentForEditing.getWeightPercentage();
+         if (currentTotalWeight + weightDifference > 1.001) { lblAssignmentStatus.setText("Error: Update exceeds 100% total weight. Current: " + df.format(currentTotalWeight * 100.0) + "%"); return; }
+
+        selectedAssignmentForEditing.setTitle(title); selectedAssignmentForEditing.setMaxScore(maxScore); selectedAssignmentForEditing.setWeightPercentage(weightDecimal);
+        populateAssignmentsTable(); populateAssignmentComboForGrading(); clearAssignmentForm();
+        lblAssignmentStatus.setText("Assignment '" + title + "' updated.");
+    }
+
+    private void deleteAssignment() {
+         if (selectedAssignmentForEditing == null) { lblAssignmentStatus.setText("Error: No assignment selected."); return; }
+        int confirm = JOptionPane.showConfirmDialog(this, "Delete assignment '" + selectedAssignmentForEditing.getTitle() + "'?\nThis deletes ALL submissions too.", "Confirm Deletion", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (confirm == JOptionPane.YES_OPTION) {
+            String assignmentId = selectedAssignmentForEditing.getAssignmentId();
+            submissionDirectory.removeSubmissionsForAssignment(assignmentId);
+            assignmentDirectory.removeAssignment(assignmentId);
+            populateAssignmentsTable(); populateAssignmentComboForGrading(); clearAssignmentForm();
+            lblAssignmentStatus.setText("Assignment deleted.");
+        }
+    }
+
+    private void gradeSubmission() {
+        if (selectedSubmissionForGrading == null) { lblSubmissionStatus.setText("Error: No submission selected."); return; }
+        // Get the assignment context from the dropdown, not the editing state
+        Assignment currentAssignmentForGrading = (Assignment) cmbAssignmentSelectForGrading.getSelectedItem();
+        if (currentAssignmentForGrading == null) { lblSubmissionStatus.setText("Error: No assignment selected in dropdown."); return; }
+
+
+        double score;
+        try {
+            score = Double.parseDouble(txtScore.getText());
+             if (score < 0 || score > currentAssignmentForGrading.getMaxScore()) { // Use assignment from dropdown
+                 lblSubmissionStatus.setText("Error: Score out of range (0-" + currentAssignmentForGrading.getMaxScore() + ").");
+                 return;
+             }
+        } catch (NumberFormatException e) {
+             lblSubmissionStatus.setText("Error: Invalid score format.");
+             return;
+        } catch (NullPointerException e) {
+             lblSubmissionStatus.setText("Error: Cannot read score field.");
+             return;
+        }
+
+        selectedSubmissionForGrading.setScore(score);
+         Enrollment studentEnrollment = enrollmentDirectory.getEnrollments().stream()
+                 .filter(en -> en.getStudent().getUniversityId().equals(selectedSubmissionForGrading.getStudentId()) &&
+                               en.getCourse().getCourseId().equals(selectedCourse.getCourseId())) // Use selectedCourse from top dropdown
+                 .findFirst().orElse(null);
+         if (studentEnrollment != null) {
+             studentEnrollment.calculateAndUpdateGrade(assignmentDirectory, submissionDirectory);
+              lblSubmissionStatus.setText("Grade saved. New course grade: " + studentEnrollment.getGrade());
+         } else {
+             lblSubmissionStatus.setText("Grade saved, but enrollment record not found.");
+         }
+        populateSubmissionsTable(); clearSubmissionGradingForm();
+    }
+
+    private void goBack() {
+        workArea.remove(this);
+        CardLayout layout = (CardLayout) workArea.getLayout();
+        layout.previous(workArea);
     }
 }

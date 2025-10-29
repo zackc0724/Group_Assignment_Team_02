@@ -6,6 +6,8 @@ package ui;
 
 // Import new model and auth classes
 import auth.AuthManager;
+import info5100.university.example.model.directory.AssignmentDirectory;
+import info5100.university.example.model.directory.SubmissionDirectory;
 import java.awt.CardLayout;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -36,16 +38,23 @@ public class CourseManagementJPanel extends javax.swing.JPanel {
     private CourseDirectory courseDirectory;
     private EnrollmentDirectory enrollmentDirectory;
     private Faculty loggedInFaculty;
+    private AssignmentDirectory assignmentDirectory;
+    private SubmissionDirectory submissionDirectory;
 
     // New constructor
-    public CourseManagementJPanel(JPanel workArea, AuthManager authManager, PersonDirectory personDirectory, CourseDirectory courseDirectory, EnrollmentDirectory enrollmentDirectory, Faculty loggedInFaculty) {
-        this.workArea = workArea;
-        this.authManager = authManager;
-        this.personDirectory = personDirectory;
-        this.courseDirectory = courseDirectory;
-        this.enrollmentDirectory = enrollmentDirectory;
-        this.loggedInFaculty = loggedInFaculty;
-        initComponents();
+    public CourseManagementJPanel(JPanel workArea, AuthManager authManager, PersonDirectory personDirectory,
+                            CourseDirectory courseDirectory, EnrollmentDirectory enrollmentDirectory,
+                            AssignmentDirectory assignmentDirectory, SubmissionDirectory submissionDirectory, // Added params
+                            Faculty loggedInFaculty) {
+    this.workArea = workArea;
+    this.authManager = authManager;
+    this.personDirectory = personDirectory;
+    this.courseDirectory = courseDirectory;
+    this.enrollmentDirectory = enrollmentDirectory;
+    this.assignmentDirectory = assignmentDirectory; // Assign param
+    this.submissionDirectory = submissionDirectory; // Assign param
+    this.loggedInFaculty = loggedInFaculty;
+    initComponents();
     }
 
 
@@ -134,7 +143,7 @@ SyllabusManagementJPanel syllabusPanel = new SyllabusManagementJPanel(workArea, 
 
     private void btnCourseDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCourseDetailsActionPerformed
         // TODO add your handling code here:
-        CourseDetailsJPanel detailsPanel = new CourseDetailsJPanel(workArea, loggedInFaculty, courseDirectory);
+        CourseDetailsJPanel detailsPanel = new CourseDetailsJPanel(workArea, loggedInFaculty, courseDirectory, assignmentDirectory); // Pass assignmentDirectory
         workArea.add("CourseDetailsJPanel", detailsPanel);
         CardLayout layout = (CardLayout) workArea.getLayout();
         layout.next(workArea);
@@ -144,7 +153,7 @@ SyllabusManagementJPanel syllabusPanel = new SyllabusManagementJPanel(workArea, 
                                                   
     // Get the logged-in faculty profile
 CourseEnrollmentJPanel enrollmentPanel = new CourseEnrollmentJPanel(workArea, loggedInFaculty, courseDirectory);
-        workArea.add("CourseEnrollmentJPanel", enrollmentPanel);
+        workArea.add("CourseEnrollmentJPanel", enrollmentPanel); // Referring to ui.CourseManagement.CourseEnrollmentJPanel
         CardLayout layout = (CardLayout) workArea.getLayout();
         layout.next(workArea);
 

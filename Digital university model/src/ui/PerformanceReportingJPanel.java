@@ -5,11 +5,14 @@
 package ui;
 
 // Import necessary classes
+import info5100.university.example.model.directory.AssignmentDirectory;
+import info5100.university.example.model.directory.SubmissionDirectory;
 import java.awt.CardLayout;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JOptionPane;
@@ -20,7 +23,14 @@ import model.Faculty;
 import model.directory.CourseDirectory;
 import model.directory.EnrollmentDirectory;
 import model.directory.PersonDirectory;
-
+import java.util.Comparator; // For sorting
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors; // For easier list creation
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.table.DefaultTableModel;
+import model.Student;
 
 /**
  *
@@ -33,22 +43,29 @@ public class PerformanceReportingJPanel extends javax.swing.JPanel {
     private EnrollmentDirectory enrollmentDirectory;
     // PersonDirectory might not be needed here but good to have if extending later
     private PersonDirectory personDirectory;
-    private ArrayList<Course> facultyCourses; // Courses for the combo box
+    private ArrayList<Course> facultyCourses; 
+    private AssignmentDirectory assignmentDirectory;
+    private SubmissionDirectory submissionDirectory;
+    private static final DecimalFormat df = new DecimalFormat("0.00");// Courses for the combo box
 
     /**
      * Creates new form PerformanceReportingJPanel (Refactored)
      */
-       public PerformanceReportingJPanel(JPanel workArea, Faculty loggedInFaculty, CourseDirectory courseDirectory, EnrollmentDirectory enrollmentDirectory, PersonDirectory personDirectory) {
-        this.workArea = workArea;
-        this.loggedInFaculty = loggedInFaculty;
-        this.courseDirectory = courseDirectory;
-        this.enrollmentDirectory = enrollmentDirectory;
-        this.personDirectory = personDirectory;
-        this.facultyCourses = new ArrayList<>();
-        initComponents();
-        populateCourseCombo();
-        populateSemesterCombo(); // Populate semesters based on courses
-    }
+       public PerformanceReportingJPanel(JPanel workArea, Faculty loggedInFaculty, CourseDirectory courseDirectory,
+                               EnrollmentDirectory enrollmentDirectory, PersonDirectory personDirectory,
+                               AssignmentDirectory assignmentDirectory, SubmissionDirectory submissionDirectory) { // Added params
+    this.workArea = workArea;
+    this.loggedInFaculty = loggedInFaculty;
+    this.courseDirectory = courseDirectory;
+    this.enrollmentDirectory = enrollmentDirectory;
+    this.personDirectory = personDirectory;
+    this.assignmentDirectory = assignmentDirectory; // Assign param
+    this.submissionDirectory = submissionDirectory; // Assign param
+    this.facultyCourses = new ArrayList<>();
+    initComponents();
+    populateCourseCombo();
+    populateSemesterCombo();
+}
 
 
     /**
@@ -73,10 +90,11 @@ public class PerformanceReportingJPanel extends javax.swing.JPanel {
         lblGradeDistribution = new javax.swing.JLabel();
         txtGradeDistribution = new javax.swing.JTextField();
         btnBack = new javax.swing.JButton();
+        lblRankingTitle = new javax.swing.JLabel();
+        scrollPaneRankings = new javax.swing.JScrollPane();
+        tblStudentRankings = new javax.swing.JTable();
 
         lblCourse.setText("Course");
-
-        cmbCourse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         btnGenerateReport.setText("Generate Report");
         btnGenerateReport.addActionListener(new java.awt.event.ActionListener() {
@@ -113,39 +131,75 @@ public class PerformanceReportingJPanel extends javax.swing.JPanel {
             }
         });
 
+        lblRankingTitle.setText("Student Rankings for Selected Course & Semester");
+
+        tblStudentRankings.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Rank", "Student ID", "Student Name", "Grade"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        scrollPaneRankings.setViewportView(tblStudentRankings);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblEnrollment)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblCourse)
-                            .addComponent(lblSemester))
-                        .addGap(29, 29, 29)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(cmbCourse, 0, 101, Short.MAX_VALUE)
-                            .addComponent(cmbSemester, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(160, 160, 160)
-                        .addComponent(btnGenerateReport))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnExport)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(lblAverageGrade)
-                                .addGap(74, 74, 74)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtEnrollment, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
-                                    .addComponent(txtAverageGrade))))
-                        .addGap(39, 39, 39)
-                        .addComponent(lblGradeDistribution)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtGradeDistribution, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(49, Short.MAX_VALUE))
             .addComponent(btnBack, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblEnrollment)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblCourse)
+                                    .addComponent(lblSemester))
+                                .addGap(29, 29, 29)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(cmbCourse, 0, 101, Short.MAX_VALUE)
+                                    .addComponent(cmbSemester, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(160, 160, 160)
+                                .addComponent(btnGenerateReport))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btnExport)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(lblAverageGrade)
+                                        .addGap(74, 74, 74)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(txtEnrollment, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                                            .addComponent(txtAverageGrade))))
+                                .addGap(39, 39, 39)
+                                .addComponent(lblGradeDistribution)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(txtGradeDistribution, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(lblRankingTitle)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(scrollPaneRankings, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(93, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -169,32 +223,38 @@ public class PerformanceReportingJPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblEnrollment)
                     .addComponent(txtEnrollment, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(82, 82, 82)
+                .addGap(18, 18, 18)
                 .addComponent(btnExport)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 171, Short.MAX_VALUE)
-                .addComponent(btnBack))
+                .addGap(15, 15, 15)
+                .addComponent(lblRankingTitle)
+                .addGap(18, 18, 18)
+                .addComponent(scrollPaneRankings, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                .addComponent(btnBack)
+                .addGap(17, 17, 17))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
         // TODO add your handling code here:
-        String courseInfo = (String) cmbCourse.getSelectedItem();
+        Object courseItem = cmbCourse.getSelectedItem(); // Get selected Course object
         String semester = (String) cmbSemester.getSelectedItem();
         String avgGrade = txtAverageGrade.getText();
         String enrollment = txtEnrollment.getText();
         String distribution = txtGradeDistribution.getText();
 
-        if (courseInfo == null || avgGrade.isEmpty()) {
+        if (!(courseItem instanceof Course) || avgGrade.isEmpty() || semester == null) {
             JOptionPane.showMessageDialog(this, "Please generate a report first before exporting.");
             return;
         }
 
-        String courseName = courseInfo; // Use the full combo box string
-        String fileName = "CoursePerformanceReport_" + courseName.replaceAll("[^a-zA-Z0-9]", "") + "_" + semester + ".csv";
+        Course selectedCourse = (Course) courseItem;
+        String courseName = selectedCourse.toString(); // Use Course object's toString for file name
+        String fileName = "CoursePerformanceReport_" + courseName.replaceAll("[^a-zA-Z0-9\\-_]", "") + "_" + semester + ".csv";
 
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.write("Course,Semester,Average Grade (GPA),Enrollment,Grade Distribution\n");
-            // Escape commas within the distribution string if necessary, basic CSV format assumes no commas in data
+            // Basic CSV writing, assumes data doesn't contain commas or quotes
             writer.write("\"" + courseName + "\"," + semester + "," + avgGrade + "," + enrollment + ",\"" + distribution + "\"\n");
             JOptionPane.showMessageDialog(this, "Report exported successfully to " + fileName);
         } catch (IOException e) {
@@ -204,92 +264,156 @@ public class PerformanceReportingJPanel extends javax.swing.JPanel {
 
     private void btnGenerateReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerateReportActionPerformed
     int selectedCourseIndex = cmbCourse.getSelectedIndex();
-        String selectedSemester = (String) cmbSemester.getSelectedItem();
+            String selectedSemester = (String) cmbSemester.getSelectedItem();
 
-        if (selectedCourseIndex < 0 || selectedSemester == null) {
-            JOptionPane.showMessageDialog(this, "Please select both a course and a semester.");
-            return;
-        }
+            // --- Clear previous results ---
+             DefaultTableModel rankingModel = (DefaultTableModel) tblStudentRankings.getModel(); // Get model early
+             // ** Check if tblStudentRankings or its model is null **
+             if (rankingModel == null) {
+                  System.err.println("Error: tblStudentRankings model is null!");
+                  JOptionPane.showMessageDialog(this,"UI Error: Ranking table not initialized correctly.","UI Error", JOptionPane.ERROR_MESSAGE);
+                  return;
+             }
+             rankingModel.setRowCount(0); // Clear ranking table
 
-        Course selectedCourse = facultyCourses.get(selectedCourseIndex);
+             // ** Check if txtAverageGrade is null **
+              if (txtAverageGrade == null) {
+                   System.err.println("Error: txtAverageGrade component is null!");
+                   JOptionPane.showMessageDialog(this,"UI Error: Average grade field not initialized.","UI Error", JOptionPane.ERROR_MESSAGE);
+                   return;
+              }
+             txtAverageGrade.setText(""); // Clear text field
 
-        // Filter enrollments for the selected course AND semester
-        ArrayList<Enrollment> relevantEnrollments = new ArrayList<>();
-        for (Enrollment en : enrollmentDirectory.getEnrollments()) {
-            if (en.getCourse().getCourseId().equals(selectedCourse.getCourseId()) &&
-                en.getCourse().getSemester().equals(selectedSemester)) {
-                relevantEnrollments.add(en);
+             // Add null checks for other components if needed
+             txtEnrollment.setText("");
+             txtGradeDistribution.setText("");
+
+
+            if (selectedCourseIndex < 0 || selectedSemester == null) {
+                JOptionPane.showMessageDialog(this, "Please select both a course and a semester.");
+                return;
             }
-        }
 
-        if (relevantEnrollments.isEmpty()) {
-            txtAverageGrade.setText("N/A");
-            txtEnrollment.setText("0");
-            txtGradeDistribution.setText("No students enrolled.");
-            JOptionPane.showMessageDialog(this, "No enrollments found for this course in the selected semester.");
-            return;
-        }
+            // --- Explicitly get and check selectedCourse ---
+             Course selectedCourse = null;
+             Object selectedItem = cmbCourse.getSelectedItem();
+             if (selectedItem instanceof Course) {
+                  selectedCourse = (Course) selectedItem;
+             }
+             // ** Crucial Check **
+             if (selectedCourse == null) {
+                 JOptionPane.showMessageDialog(this, "Invalid course selected or course data missing.", "Error", JOptionPane.ERROR_MESSAGE);
+                 return; // Stop if course is null
+             }
+             // Now we are sure selectedCourse is not null
+             final String courseIdToFilter = selectedCourse.getCourseId();
 
-        // Calculate Metrics
-        int enrollmentCount = relevantEnrollments.size();
-        double totalGradePoints = 0;
-        int gradedCount = 0;
-        Map<String, Integer> gradeCounts = new HashMap<>();
 
-        for (Enrollment en : relevantEnrollments) {
-            String grade = en.getGrade();
-            if (grade != null && !grade.equals("In Progress")) {
-                double points = getGradePoint(grade);
-                totalGradePoints += points;
-                gradedCount++;
-                gradeCounts.put(grade, gradeCounts.getOrDefault(grade, 0) + 1);
-            } else {
-                 // Count "In Progress" separately if needed, or just skip for GPA calculation
-                 gradeCounts.put("In Progress", gradeCounts.getOrDefault("In Progress", 0) + 1);
+            // --- Filter enrollments ---
+            // Use the final courseIdToFilter variable inside the lambda
+            List<Enrollment> relevantEnrollments = enrollmentDirectory.getEnrollments().stream()
+                    .filter(en -> en.getCourse() != null &&
+                                  en.getStudent() != null &&
+                                  en.getCourse().getCourseId().equals(courseIdToFilter) && // Use final variable
+                                  en.getCourse().getSemester().equals(selectedSemester))
+                    .collect(Collectors.toList());
+
+
+            if (relevantEnrollments.isEmpty()) {
+                txtAverageGrade.setText("N/A");
+                txtEnrollment.setText("0");
+                txtGradeDistribution.setText("No students enrolled.");
+                JOptionPane.showMessageDialog(this, "No enrollments found for this course in the selected semester.");
+                return;
             }
-        }
 
-        // Calculate Average GPA
-        double averageGpa = (gradedCount > 0) ? totalGradePoints / gradedCount : 0.0;
-        DecimalFormat df = new DecimalFormat("#.##"); // Format to 2 decimal places
+            // --- Calculate Class GPA & Grade Distribution ---
+            int enrollmentCount = relevantEnrollments.size();
+            double totalGradePointsSum = 0;
+            int gradedStudentCount = 0;
+            int totalCreditsAttemptedByGraded = 0;
+            Map<String, Integer> gradeCounts = new HashMap<>();
+            List<StudentRankData> studentDataForRanking = new ArrayList<>();
 
-        // Build Grade Distribution String
-        StringBuilder distribution = new StringBuilder();
-        // Define a preferred order for grades
-        String[] gradeOrder = {"A", "A-", "B+", "B", "B-", "C+", "C", "C-", "F", "In Progress"};
-        boolean first = true;
-        for (String gradeKey : gradeOrder) {
-            if (gradeCounts.containsKey(gradeKey)) {
-                 if (!first) {
-                    distribution.append(", ");
+            for (Enrollment en : relevantEnrollments) {
+                String grade = en.getGrade();
+                 // Ensure course is not null before getting credits
+                 if (en.getCourse() == null) continue; // Skip if somehow course is null
+                 int credits = en.getCourse().getCredits();
+
+
+                if (grade != null && !grade.equals("In Progress")) {
+                    double points = getGradePoint(grade);
+                    totalGradePointsSum += points * credits;
+                    totalCreditsAttemptedByGraded += credits;
+                    gradedStudentCount++;
+                    gradeCounts.put(grade, gradeCounts.getOrDefault(grade, 0) + 1);
+                    // Ensure student is not null before adding to ranking
+                     if (en.getStudent() != null) {
+                         studentDataForRanking.add(new StudentRankData(en.getStudent(), points, grade));
+                     }
+                } else {
+                     gradeCounts.put("In Progress", gradeCounts.getOrDefault("In Progress", 0) + 1);
+                     // Add to ranking list with 0 points if you want to show ungraded students
+                     // Ensure student is not null here too
+                     // if(en.getStudent() != null) {
+                     //     studentDataForRanking.add(new StudentRankData(en.getStudent(), 0.0, grade != null ? grade : "N/A"));
+                     // }
                 }
-                distribution.append(gradeKey).append(": ").append(gradeCounts.get(gradeKey));
-                first = false;
             }
-        }
-         // Add any other grades that might not be in the standard list (shouldn't happen with our combo box)
-        for (Map.Entry<String, Integer> entry : gradeCounts.entrySet()) {
-            boolean found = false;
-            for(String orderedGrade : gradeOrder){
-                if(entry.getKey().equals(orderedGrade)){
-                    found = true;
-                    break;
+
+             double averageGpa = (totalCreditsAttemptedByGraded > 0) ? totalGradePointsSum / totalCreditsAttemptedByGraded : 0.0;
+
+            // Build Grade Distribution String
+            StringBuilder distribution = new StringBuilder();
+            String[] gradeOrder = {"A", "A-", "B+", "B", "B-", "C+", "C", "C-", "F", "In Progress"};
+            boolean first = true;
+            for (String gradeKey : gradeOrder) {
+                if (gradeCounts.containsKey(gradeKey)) {
+                     if (!first) distribution.append(", ");
+                    distribution.append(gradeKey).append(": ").append(gradeCounts.get(gradeKey));
+                    first = false;
                 }
             }
-            if(!found){
-                 if (!first) {
-                    distribution.append(", ");
+             for(Map.Entry<String, Integer> entry : gradeCounts.entrySet()){
+                 boolean isOrdered = false;
+                 for(String orderedGrade : gradeOrder) if(entry.getKey().equals(orderedGrade)) isOrdered = true;
+                 if(!isOrdered){
+                      if (!first) distribution.append(", ");
+                      distribution.append(entry.getKey()).append(": ").append(entry.getValue());
+                      first = false;
+                 }
+             }
+
+            // Display GPA & Distribution Results
+            txtAverageGrade.setText(df.format(averageGpa));
+            txtEnrollment.setText(String.valueOf(enrollmentCount));
+            txtGradeDistribution.setText(distribution.toString());
+
+
+            // --- Populate Ranking Table ---
+            studentDataForRanking.sort(Comparator.comparingDouble(StudentRankData::getGpaPoints).reversed());
+
+            int rank = 0;
+            int displayRank = 0;
+            double lastPoints = -1.0;
+
+            for (StudentRankData data : studentDataForRanking) {
+                 // Ensure student object inside data is not null
+                 if (data.getStudent() == null) continue;
+
+                rank++;
+                if (data.getGpaPoints() != lastPoints) {
+                    displayRank = rank;
+                    lastPoints = data.getGpaPoints();
                 }
-                 distribution.append(entry.getKey()).append(": ").append(entry.getValue());
-                 first = false;
+                rankingModel.addRow(new Object[]{
+                    displayRank,
+                    data.getStudent().getUniversityId(),
+                    data.getStudent().getName(),
+                    data.getGrade()
+                });
             }
-        }
-
-
-        // Display Results
-        txtAverageGrade.setText(df.format(averageGpa));
-        txtEnrollment.setText(String.valueOf(enrollmentCount));
-        txtGradeDistribution.setText(distribution.toString());
 
     }//GEN-LAST:event_btnGenerateReportActionPerformed
 
@@ -305,45 +429,67 @@ public class PerformanceReportingJPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnExport;
     private javax.swing.JButton btnGenerateReport;
-    private javax.swing.JComboBox<String> cmbCourse;
+    private javax.swing.JComboBox<Course> cmbCourse;
     private javax.swing.JComboBox<String> cmbSemester;
     private javax.swing.JLabel lblAverageGrade;
     private javax.swing.JLabel lblCourse;
     private javax.swing.JLabel lblEnrollment;
     private javax.swing.JLabel lblGradeDistribution;
+    private javax.swing.JLabel lblRankingTitle;
     private javax.swing.JLabel lblSemester;
+    private javax.swing.JScrollPane scrollPaneRankings;
+    private javax.swing.JTable tblStudentRankings;
     private javax.swing.JTextField txtAverageGrade;
     private javax.swing.JTextField txtEnrollment;
     private javax.swing.JTextField txtGradeDistribution;
     // End of variables declaration//GEN-END:variables
 private void populateCourseCombo() {
-        cmbCourse.removeAllItems();
-        facultyCourses.clear();
+        // Use DefaultComboBoxModel for type safety
+        DefaultComboBoxModel<Course> courseModel = new DefaultComboBoxModel<>();
+        cmbCourse.setModel(courseModel); // Set model immediately
+        facultyCourses.clear(); // Clear internal list
+
+        // Ensure loggedInFaculty is not null
+         if (loggedInFaculty == null) return;
+
         for (Course course : courseDirectory.getCourses()) {
             if (course.getFaculty() != null && course.getFaculty().getUniversityId().equals(loggedInFaculty.getUniversityId())) {
-                facultyCourses.add(course);
-                cmbCourse.addItem(course.toString());
+                facultyCourses.add(course); // Add to internal list if needed elsewhere
+                courseModel.addElement(course); // Add directly to model
             }
         }
+         // No need to manually select index 0, adding elements might trigger selection event
     }
 
+
     private void populateSemesterCombo() {
-        cmbSemester.removeAllItems();
-        // Simple approach: Add semesters present in the faculty's courses
-        ArrayList<String> semesters = new ArrayList<>();
-        for (Course c : facultyCourses) {
-            if (!semesters.contains(c.getSemester())) {
-                semesters.add(c.getSemester());
+        // Use DefaultComboBoxModel for type safety
+        DefaultComboBoxModel<String> semesterModel = new DefaultComboBoxModel<>();
+        cmbSemester.setModel(semesterModel); // Set model immediately
+
+        // Use a Set to get unique semesters from faculty's courses
+        Set<String> semesters = new HashSet<>(); // Use HashSet for uniqueness
+        // Re-filter courses taught by this faculty, don't rely on facultyCourses list state
+         if (loggedInFaculty != null) {
+            for (Course c : courseDirectory.getCourses()) {
+                 if (c.getFaculty() != null && c.getFaculty().getUniversityId().equals(loggedInFaculty.getUniversityId()) && c.getSemester() != null) {
+                    semesters.add(c.getSemester());
+                 }
             }
+         }
+
+        // Add hardcoded future semesters if needed (Consider making this configurable)
+        semesters.add("Spring2026");
+
+        // Sort the unique semesters
+        List<String> sortedSemesters = new ArrayList<>(semesters);
+        Collections.sort(sortedSemesters);
+
+        // Populate the model
+        for (String semester : sortedSemesters) {
+            semesterModel.addElement(semester);
         }
-        // Add hardcoded future semesters if needed
-        if (!semesters.contains("Spring2026")) semesters.add("Spring2026");
-        
-        semesters.sort(null); // Sort alphabetically/chronologically
-        
-        for (String semester : semesters) {
-            cmbSemester.addItem(semester);
-        }
+        // No need to manually select index 0
     }
 
     // Helper to convert letter grade to GPA points
@@ -361,5 +507,20 @@ private void populateCourseCombo() {
             case "F": return 0.0;
             default: return 0.0; // Default for "In Progress" or unexpected values
         }
+    }
+    private static class StudentRankData {
+        private Student student;
+        private double gpaPoints;
+        private String grade;
+
+        StudentRankData(Student student, double gpaPoints, String grade) {
+            this.student = student;
+            this.gpaPoints = gpaPoints;
+            this.grade = grade;
+        }
+
+        Student getStudent() { return student; }
+        double getGpaPoints() { return gpaPoints; }
+        String getGrade() { return grade; }
     }
 }

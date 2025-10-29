@@ -141,7 +141,7 @@
     </Container>
     <Component class="javax.swing.JButton" name="btnViewTranscript">
       <Properties>
-        <Property name="text" type="java.lang.String" value="View Transcript"/>
+        <Property name="text" type="java.lang.String" value="View Selected Student Transcript"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnViewTranscriptActionPerformed"/>
@@ -150,6 +150,7 @@
     <Component class="javax.swing.JButton" name="btnProgressReport">
       <Properties>
         <Property name="text" type="java.lang.String" value="Progress Report"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnProgressReportActionPerformed"/>

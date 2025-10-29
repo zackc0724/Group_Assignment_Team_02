@@ -5,6 +5,7 @@
 package ui.CourseManagement;
 
 // Import new model classes
+import info5100.university.example.model.directory.AssignmentDirectory;
 import java.awt.CardLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -28,16 +29,19 @@ public class CourseDetailsJPanel extends javax.swing.JPanel {
     private JPanel workArea;
     private Faculty loggedInFaculty;
     private CourseDirectory courseDirectory;
-    private Course selectedCourse = null; // To keep track of the selected course
+    private Course selectedCourse = null;
+    private AssignmentDirectory assignmentDirectory;// To keep track of the selected course
 
     // New constructor
-    public CourseDetailsJPanel(JPanel workArea, Faculty loggedInFaculty, CourseDirectory courseDirectory) {
-        this.workArea = workArea;
-        this.loggedInFaculty = loggedInFaculty;
-        this.courseDirectory = courseDirectory;
-        initComponents();
-        populateScheduleComboBox();
-        populateCourseTable();
+    public CourseDetailsJPanel(JPanel workArea, Faculty loggedInFaculty, CourseDirectory courseDirectory,
+                           AssignmentDirectory assignmentDirectory) { // Added param
+    this.workArea = workArea;
+    this.loggedInFaculty = loggedInFaculty;
+    this.courseDirectory = courseDirectory;
+    this.assignmentDirectory = assignmentDirectory; // Assign param
+    initComponents();
+    populateScheduleComboBox();
+    populateCourseTable();
         
         // Add a listener to the table to populate fields when a row is clicked
         tblCourseDetails.addMouseListener(new MouseAdapter() {
@@ -228,31 +232,35 @@ public class CourseDetailsJPanel extends javax.swing.JPanel {
     // Step 1: Read values from input fields
     String courseCode = txtCourseCode.getText();
         String title = txtTitle.getText();
-        String schedule = (String) cmbSchedule.getSelectedItem();
+        String schedule = (String) cmbSchedule.getSelectedItem(); // Using semester for schedule
         int capacity = (Integer) sprCapacity.getValue();
+        // Assume a default credit value (e.g., 4) if not entered elsewhere
+        int credits = 4; // Or get from another input field if you add one
+        // Assume a default tuition value
+        double tuition = 6000.0; // Make sure this is a double
 
         if(courseCode.isEmpty() || title.isEmpty() || schedule.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill all fields (Course Code, Title, Schedule).");
             return;
         }
 
-        // Create new Course object
-        // Note: Tuition is hardcoded, description is ignored
+        // *** THIS IS THE CORRECTED CONSTRUCTOR CALL ***
         Course newCourse = new Course(
             courseCode,
             title,
-            schedule,
+            schedule,       // Semester field used as schedule
             loggedInFaculty, // Assign to current faculty
             capacity,
-            6000 // Default tuition
+            tuition,        // Pass the double tuition
+            credits         // Pass the int credits
         );
-        
+
         // Add to the central directory
         courseDirectory.addCourse(newCourse);
-        
+
         // Refresh the table
         populateCourseTable();
-        
+
         // Clear fields
         btnClearActionPerformed(evt);
 

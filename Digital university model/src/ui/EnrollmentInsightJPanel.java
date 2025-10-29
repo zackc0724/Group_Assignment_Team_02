@@ -4,10 +4,23 @@
  */
 package ui;
 
-import info5100.university.example.CourseSchedule.CourseOffer;
-import info5100.university.example.CourseSchedule.CourseSchedule;
-import info5100.university.example.Department.Department;
+// Import necessary classes
 import java.awt.CardLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+import model.Course;
+import model.Enrollment;
+import model.Faculty;
+import model.directory.CourseDirectory;
+import model.directory.EnrollmentDirectory;
+import model.directory.PersonDirectory; // May not be needed but good practice
 
 /**
  *
@@ -15,18 +28,26 @@ import java.awt.CardLayout;
  */
 public class EnrollmentInsightJPanel extends javax.swing.JPanel {
 
-     private javax.swing.JPanel workArea;
-      private Department department; // add this
+     private JPanel workArea;
+     private Faculty loggedInFaculty;
+     private CourseDirectory courseDirectory;
+     private EnrollmentDirectory enrollmentDirectory;
+     // PersonDirectory personDirectory; // Keep if needed later
+
 
     /**
-     * Creates new form EnrollmentInsightJPanel
+     * Creates new form EnrollmentInsightJPanel (Refactored)
      */
-     public EnrollmentInsightJPanel(javax.swing.JPanel workArea, Department department) {
+     public EnrollmentInsightJPanel(JPanel workArea, Faculty loggedInFaculty, CourseDirectory courseDirectory, EnrollmentDirectory enrollmentDirectory, PersonDirectory personDirectory) {
         this.workArea = workArea;
-        this.department = department;
+        this.loggedInFaculty = loggedInFaculty;
+        this.courseDirectory = courseDirectory;
+        this.enrollmentDirectory = enrollmentDirectory;
+        // this.personDirectory = personDirectory;
         initComponents();
         populateSemesterComboBox();
-
+        // Initially clear the table and totals
+        clearTableAndTotals();
     }
 
     /**
@@ -42,7 +63,7 @@ public class EnrollmentInsightJPanel extends javax.swing.JPanel {
         cmbSemester = new javax.swing.JComboBox<>();
         btnGenerateInsight = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblCourseInsights = new javax.swing.JTable();
         lblStudentsEnrolled = new javax.swing.JLabel();
         txtStudentsEnrolled = new javax.swing.JTextField();
         lblTotalRevenue = new javax.swing.JLabel();
@@ -60,7 +81,7 @@ public class EnrollmentInsightJPanel extends javax.swing.JPanel {
             }
         });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblCourseInsights.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -71,11 +92,15 @@ public class EnrollmentInsightJPanel extends javax.swing.JPanel {
                 "Course Code", "Course Name", "Students Enrolled ", "Total Revenue"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tblCourseInsights);
 
         lblStudentsEnrolled.setText("Total Students Enrolled");
 
+        txtStudentsEnrolled.setEditable(false);
+
         lblTotalRevenue.setText("Total Revenue");
+
+        txtTotalRevenue.setEditable(false);
 
         btnBack.setText("Back");
         btnBack.addActionListener(new java.awt.event.ActionListener() {
@@ -139,47 +164,73 @@ public class EnrollmentInsightJPanel extends javax.swing.JPanel {
     private void btnGenerateInsightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerateInsightActionPerformed
         // TODO add your handling code here:                                                  
     String selectedSemester = (String) cmbSemester.getSelectedItem();
-    if (selectedSemester == null) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Please select a semester.");
-        return;
-    }
+        if (selectedSemester == null) {
+            JOptionPane.showMessageDialog(this, "Please select a semester.");
+            clearTableAndTotals();
+            return;
+        }
 
-    CourseSchedule schedule = department.getMastercoursecatalog().get(selectedSemester);
-    if (schedule == null) {
-        javax.swing.JOptionPane.showMessageDialog(this, "No data available for selected semester.");
-        return;
-    }
+        DefaultTableModel model = (DefaultTableModel) tblCourseInsights.getModel();
+        model.setRowCount(0);
 
-    java.util.List<CourseOffer> offers = schedule.getSchedule();
-    javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
-    model.setRowCount(0);
+        // Data structure to hold insights per course
+        Map<String, CourseInsight> courseInsightsMap = new HashMap<>();
 
-    int totalStudents = 0;
-    int totalRevenue = 0;
+        // 1. Identify courses taught by this faculty in the selected semester
+        List<Course> facultySemesterCourses = new ArrayList<>();
+        for (Course course : courseDirectory.getCourses()) {
+            if (course.getFaculty() != null &&
+                course.getFaculty().getUniversityId().equals(loggedInFaculty.getUniversityId()) &&
+                selectedSemester.equals(course.getSemester())) {
+                facultySemesterCourses.add(course);
+                // Initialize map entry for each relevant course
+                courseInsightsMap.put(course.getCourseId(), new CourseInsight(course));
+            }
+        }
 
-    for (CourseOffer offer : offers) {
-        int enrolled = (int) offer.getSeatlist().stream().filter(s -> s.isOccupied()).count();
-        int revenue = offer.getTotalCourseRevenues();
+        if (facultySemesterCourses.isEmpty()) {
+             JOptionPane.showMessageDialog(this, "You are not teaching any courses in " + selectedSemester + ".");
+             clearTableAndTotals();
+             return;
+        }
 
-        model.addRow(new Object[]{
-            offer.getCourseNumber(),
-            offer.getSubjectCourse().getName(),
-            enrolled,
-            "$" + revenue
-        });
 
-        totalStudents += enrolled;
-        totalRevenue += revenue;
-    }
+        // 2. Iterate through ALL enrollments to find students in those specific courses
+        for (Enrollment enrollment : enrollmentDirectory.getEnrollments()) {
+            String courseId = enrollment.getCourse().getCourseId();
+            // Check if this enrollment is for one of the faculty's courses in this semester
+            if (courseInsightsMap.containsKey(courseId)) {
+                CourseInsight insight = courseInsightsMap.get(courseId);
+                insight.incrementEnrollment();
+                insight.addRevenue(enrollment.getCourse().getTuitionAmountPerStudent());
+            }
+        }
 
-    txtStudentsEnrolled.setText(String.valueOf(totalStudents));
-    txtTotalRevenue.setText("$" + totalRevenue);
+        // 3. Populate table and calculate totals
+        int grandTotalStudents = 0;
+        double grandTotalRevenue = 0;
+
+        for (CourseInsight insight : courseInsightsMap.values()) {
+            model.addRow(new Object[]{
+                insight.getCourse().getCourseId(),
+                insight.getCourse().getTitle(),
+                insight.getEnrolledCount(),
+                "$" + String.format("%.2f", insight.getTotalRevenue()) // Format currency
+            });
+            grandTotalStudents += insight.getEnrolledCount();
+            grandTotalRevenue += insight.getTotalRevenue();
+        }
+
+        // 4. Display totals
+        txtStudentsEnrolled.setText(String.valueOf(grandTotalStudents));
+        txtTotalRevenue.setText("$" + String.format("%.2f", grandTotalRevenue)); // Format currency
 
     }//GEN-LAST:event_btnGenerateInsightActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         // TODO add your handling code here:
-          CardLayout layout = (CardLayout) workArea.getLayout();
+          workArea.remove(this);
+        CardLayout layout = (CardLayout) workArea.getLayout();
         layout.previous(workArea);
     }//GEN-LAST:event_btnBackActionPerformed
 
@@ -189,19 +240,74 @@ public class EnrollmentInsightJPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnGenerateInsight;
     private javax.swing.JComboBox<String> cmbSemester;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lblSemester;
     private javax.swing.JLabel lblStudentsEnrolled;
     private javax.swing.JLabel lblTotalRevenue;
+    private javax.swing.JTable tblCourseInsights;
     private javax.swing.JTextField txtStudentsEnrolled;
     private javax.swing.JTextField txtTotalRevenue;
     // End of variables declaration//GEN-END:variables
 
    private void populateSemesterComboBox() {
-    cmbSemester.removeAllItems();
-    for (String semester : department.getMastercoursecatalog().keySet()) {
-        cmbSemester.addItem(semester);
+        cmbSemester.removeAllItems();
+        // Use a Set to avoid duplicate semesters
+        Set<String> semesters = new HashSet<>();
+        for (Course course : courseDirectory.getCourses()) {
+            // Only add semesters where this faculty teaches
+             if (course.getFaculty() != null &&
+                course.getFaculty().getUniversityId().equals(loggedInFaculty.getUniversityId())) {
+                 semesters.add(course.getSemester());
+             }
+        }
+        // Add hardcoded future semesters if needed
+        semesters.add("Spring2026");
+
+        List<String> sortedSemesters = new ArrayList<>(semesters);
+        sortedSemesters.sort(null); // Sort
+
+        for (String semester : sortedSemesters) {
+            cmbSemester.addItem(semester);
+        }
     }
-}
+
+    private void clearTableAndTotals() {
+         DefaultTableModel model = (DefaultTableModel) tblCourseInsights.getModel();
+         model.setRowCount(0);
+         txtStudentsEnrolled.setText("");
+         txtTotalRevenue.setText("");
+    }
+
+    // Inner helper class to store insights per course
+    private static class CourseInsight {
+        private Course course;
+        private int enrolledCount;
+        private double totalRevenue;
+
+        CourseInsight(Course course) {
+            this.course = course;
+            this.enrolledCount = 0;
+            this.totalRevenue = 0;
+        }
+
+        void incrementEnrollment() {
+            this.enrolledCount++;
+        }
+
+        void addRevenue(double amount) {
+            this.totalRevenue += amount;
+        }
+
+        Course getCourse() {
+            return course;
+        }
+
+        int getEnrolledCount() {
+            return enrolledCount;
+        }
+
+        double getTotalRevenue() {
+            return totalRevenue;
+        }
+    }
 
 }

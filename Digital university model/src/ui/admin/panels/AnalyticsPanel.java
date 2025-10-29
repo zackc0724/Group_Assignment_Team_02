@@ -1,7 +1,10 @@
-
 package ui.admin.panels;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map; // Import Map
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import model.Course;
@@ -15,8 +18,10 @@ public class AnalyticsPanel extends javax.swing.JPanel {
     private CourseDirectory courseDirectory;
     private EnrollmentDirectory enrollmentDirectory;
 
+    // UI Components
     private JTable tblUsers;
     private JTable tblCourses;
+    private JTable tblCoursesPerSemester; // New table for course count
     private JLabel lblTotalTuition;
 
     public AnalyticsPanel(PersonDirectory pd, CourseDirectory cd, EnrollmentDirectory ed) {
@@ -26,6 +31,7 @@ public class AnalyticsPanel extends javax.swing.JPanel {
         initComponents();
         populateUserSummary();
         populateCourseSummary();
+        populateCoursesPerSemester(); // Call method to populate new table
     }
 
     private void populateUserSummary(){
@@ -45,59 +51,114 @@ public class AnalyticsPanel extends javax.swing.JPanel {
         model.setRowCount(0);
 
         double totalTuition = 0.0;
-        HashMap<String,Integer> enrolledMap = new HashMap<>();
+        HashMap<String,Integer> enrolledMap = new HashMap<>(); // Not strictly needed here anymore
 
         for(Course c: courseDirectory.getCourses()){
             int enrolled = enrollmentDirectory.getEnrollmentCountForCourse(c.getCourseId());
-            enrolledMap.put(c.getCourseId(), enrolled);
-            totalTuition += enrolled * c.getTuitionAmountPerStudent();
+            // enrolledMap.put(c.getCourseId(), enrolled); // No longer needed for this table
+            double courseRevenue = enrolled * c.getTuitionAmountPerStudent();
+            totalTuition += courseRevenue;
 
             model.addRow(new Object[]{
                 c.getCourseId(),
                 c.getTitle(),
                 c.getSemester(),
                 enrolled,
-                c.getTuitionAmountPerStudent() * enrolled
+                String.format("$%.2f", courseRevenue) // Format revenue
             });
         }
 
-        lblTotalTuition.setText("Total Tuition Revenue: $" + totalTuition);
+        lblTotalTuition.setText("Total Tuition Revenue (All Semesters): $" + String.format("%.2f", totalTuition)); // Format total
     }
+
+    // --- New Method to Populate Courses Per Semester Table ---
+    private void populateCoursesPerSemester() {
+        Map<String, Integer> semesterCounts = new HashMap<>();
+
+        // Count courses for each semester
+        for (Course c : courseDirectory.getCourses()) {
+            String semester = c.getSemester();
+            semesterCounts.put(semester, semesterCounts.getOrDefault(semester, 0) + 1);
+        }
+
+        DefaultTableModel model = (DefaultTableModel) tblCoursesPerSemester.getModel();
+        model.setRowCount(0);
+
+        // Populate the table
+        // Sort keys (semesters) for consistent order if desired
+        List<String> sortedSemesters = new ArrayList<>(semesterCounts.keySet());
+        Collections.sort(sortedSemesters);
+
+        for (String semester : sortedSemesters) {
+            model.addRow(new Object[]{semester, semesterCounts.get(semester)});
+        }
+    }
+
 
     private void initComponents() {
         setBackground(new java.awt.Color(240,255,240));
-        setLayout(null);
+        setLayout(null); // Using null layout
 
+        int currentY = 10; // Track Y position
+
+        // --- User Summary ---
         JLabel lblUsersTitle = new JLabel("Active Users by Role");
-        lblUsersTitle.setBounds(20,10,200,20);
+        lblUsersTitle.setBounds(20, currentY, 200, 20);
         add(lblUsersTitle);
+        currentY += 20; // Move Y down
 
-        JScrollPane jScrollPane1 = new JScrollPane();
+        JScrollPane scrollPaneUsers = new JScrollPane();
         tblUsers = new JTable();
         tblUsers.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {},
             new String [] { "Role", "Active Count" }
-        ));
-        jScrollPane1.setViewportView(tblUsers);
-        jScrollPane1.setBounds(20,30,300,120);
-        add(jScrollPane1);
+        ){
+             @Override public boolean isCellEditable(int row, int col){ return false; } // Non-editable
+         });
+        scrollPaneUsers.setViewportView(tblUsers);
+        scrollPaneUsers.setBounds(20, currentY, 300, 80); // Adjusted height
+        add(scrollPaneUsers);
+        currentY += 80 + 10; // Move Y down
 
-        JLabel lblCoursesTitle = new JLabel("Courses / Enrollment / Revenue");
-        lblCoursesTitle.setBounds(20,170,260,20);
+        // --- Courses Per Semester Summary --- (NEW)
+        JLabel lblSemesterCoursesTitle = new JLabel("Total Courses Offered Per Semester");
+        lblSemesterCoursesTitle.setBounds(340, 10, 240, 20); // Position to the right
+        add(lblSemesterCoursesTitle);
+
+        JScrollPane scrollPaneSemesters = new JScrollPane();
+        tblCoursesPerSemester = new JTable(); // Initialize new table
+        tblCoursesPerSemester.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {},
+            new String [] { "Semester", "Course Count" } // Columns for new table
+        ){
+             @Override public boolean isCellEditable(int row, int col){ return false; } // Non-editable
+         });
+        scrollPaneSemesters.setViewportView(tblCoursesPerSemester);
+        scrollPaneSemesters.setBounds(340, 30, 240, 80); // Position below title, height matches user table
+        add(scrollPaneSemesters);
+
+        // --- Course Enrollment/Revenue Summary ---
+        JLabel lblCoursesTitle = new JLabel("Course Enrollment & Revenue");
+        lblCoursesTitle.setBounds(20, currentY, 260, 20);
         add(lblCoursesTitle);
+        currentY += 20;
 
-        JScrollPane jScrollPane2 = new JScrollPane();
+        JScrollPane scrollPaneCourses = new JScrollPane();
         tblCourses = new JTable();
         tblCourses.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {},
             new String [] { "CourseID", "Title", "Semester", "Enrolled", "Tuition$" }
-        ));
-        jScrollPane2.setViewportView(tblCourses);
-        jScrollPane2.setBounds(20,190,560,140);
-        add(jScrollPane2);
+        ){
+             @Override public boolean isCellEditable(int row, int col){ return false; } // Non-editable
+         });
+        scrollPaneCourses.setViewportView(tblCourses);
+        scrollPaneCourses.setBounds(20, currentY, 560, 140);
+        add(scrollPaneCourses);
+        currentY += 140 + 10;
 
-        lblTotalTuition = new JLabel("Total Tuition Revenue: $0");
-        lblTotalTuition.setBounds(20,340,560,20);
+        // --- Total Tuition ---
+        lblTotalTuition = new JLabel("Total Tuition Revenue: $0.00");
+        lblTotalTuition.setBounds(20, currentY, 560, 20);
         add(lblTotalTuition);
     }
 }
