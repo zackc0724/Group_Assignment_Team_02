@@ -30,7 +30,7 @@ This project integrates a reference implementation of a Digital University Syste
 ### Setup
 1.  **Clone the Repository:**
     ```bash
-    git clone [Your Repository URL Here]
+    git clone [https://github.com/zackc0724/Group_Assignment_Team_02.git]
     ```
 2.  **Open in NetBeans:** Launch NetBeans IDE and select `File > Open Project...`. Navigate to the cloned repository folder and open the project.
 3.  **Clean and Build:** Right-click the project name in the "Projects" tab and select "Clean and Build". This compiles the code and resolves dependencies.
@@ -38,9 +38,9 @@ This project integrates a reference implementation of a Digital University Syste
 
 ## 5. Authentication & Access Control
 ### Authentication
-* ]Users log in via the main window using a username and password 330].
-* ]The `auth.AuthManager` class handles credential verification against a list of pre-populated or admin-created `UserAccount` objects.
-* ]A "Logout" button is available within each role's dashboard to terminate the session and return to the login screen.
+* Users log in via the main window using a username and password.
+* The `auth.AuthManager` class handles credential verification against a list of pre-populated or admin-created `UserAccount` objects.
+* A "Logout" button is available within each role's dashboard to terminate the session and return to the login screen.
 
 ### Default Credentials
 * **Admin:** username: `admin`, password: `admin`
@@ -48,42 +48,43 @@ This project integrates a reference implementation of a Digital University Syste
 * **Student:** username: `s1`, password: `pass` (through `s10`)
 
 ### Authorization (Role-Based Access)
-* ]Upon successful login, `MainJFrame.java` checks the user's role stored in their `UserAccount` object.
-* ]Based on the role ("Admin", "Faculty", "Student"), the application displays the corresponding main dashboard panel (`AdminWorkAreaJPanel`, `FacultyJPanel`, `StudentWorkAreaJPanel`).
-* ]Each role-specific panel only contains buttons and navigation leading to features authorized for that role, as defined in the assignment responsibilities. Users cannot access panels or features intended for other roles through the UI.
+* Upon successful login, `MainJFrame.java` checks the user's role stored in their `UserAccount` object.
+* Based on the role ("Admin", "Faculty", "Student"), the application displays the corresponding main dashboard panel (`AdminWorkAreaJPanel`, `FacultyJPanel`, `StudentWorkAreaJPanel`).
+* Each role-specific panel only contains buttons and navigation leading to features authorized for that role, as defined in the assignment responsibilities. Users cannot access panels or features intended for other roles through the UI.
 
 ## 6. Features Implemented
 *(Note: Assign responsible team member for each feature/use case)*
 
-### Administrator Role (Implemented by: [Team Member Name])
-* ]**User Account Management:** Create, Update (Password, Role, Linked ID), and Delete user accounts (`ManageAccountsPanel`) 210]. Prevents duplicate usernames.
-* ]**Person Registration:** Register new Student, Faculty, and Admin persons (`ManagePersonsPanel`) 212, 215]. ]Auto-generates unique ID 217]. ]Prevents duplicate emails 216].
-* ]**Records Management:** View, Update (Name, Phone, Dept), and Delete Student, Faculty, and Admin person records (`ManagePersonsPanel`) 223]. ]Search persons by University ID, Name, or Department 225].
-* ]**Profile Management:** View and update own Admin profile details (`ProfilePanel`) 227].
-* ]**Analytics Dashboard:** View summary reports (`AnalyticsPanel`) including: Total active users by role  232]], Total courses offered per semester  233]], Total enrolled students per course  234]], and Total tuition revenue summary 235].
+### Administrator Role (Implemented by: [Zihao Chen])
+* **User Account Management:** Create, Update (Password, Role, Linked ID), and Delete user accounts (`ManageAccountsPanel`). Prevents duplicate usernames.
+* **Person Registration:** Register new Student, Faculty, and Admin persons (`ManagePersonsPanel`). Auto-generates unique ID. Prevents duplicate emails.
+* **Records Management:** View, Update (Name, Phone, Dept), and Delete Student, Faculty, and Admin person records (`ManagePersonsPanel`). ]Search persons by University ID, Name, or Department.
+* **Profile Management:** View and update own Admin profile details (`ProfilePanel`).
+* **Analytics Dashboard:** View summary reports (`AnalyticsPanel`) including: Total active users by role, Total courses offered per semester, Total enrolled students per course, and Total tuition revenue summary.
 
-### Faculty Role (Implemented by: [Team Member Name])
+### Faculty Role (Implemented by: [Zenish Borad])
 * **Course Management:**
-    * ]View/Add/Update/Delete details (ID, Title, Semester/Schedule, Capacity) for *own* courses (`CourseDetailsJPanel`) 242].
-    * ]Manage syllabus name for own courses (`SyllabusManagementJPanel`) 242].
-    * ]Open/Close enrollment for own courses (`CourseEnrollmentJPanel` in `ui.CourseManagement`) 245].
-* ]**Profile Management:** View and update own profile details (`ProfileManagementJPanel`) 246].
+    * View/Add/Update/Delete details (ID, Title, Semester/Schedule, Capacity) for *own* courses (`CourseDetailsJPanel`).
+    * Manage syllabus name for own courses (`SyllabusManagementJPanel`) .
+    * Open/Close enrollment for own courses (`CourseEnrollmentJPanel` in `ui.CourseManagement`) .
+* **Profile Management:** View and update own profile details (`ProfileManagementJPanel`).
 * **Student Management:**
-    * ]View list of enrolled students per course (`CourseEnrollmentJPanel` in `ui.StudentManagement`) 247].
-    * ]View selected student's transcript summary (opens `TranscriptJPanel`) 248].
-    * ]Manage assignments (Add/Update/Delete with title, max score, weight) for own courses (`StudentGradingJPanel`) 249].
-    * ]Grade student submissions for assignments (`StudentGradingJPanel`) 249].
-    * ]Final letter grade is automatically computed and updated based on weighted assignment scores (`Enrollment.calculateAndUpdateGrade`) 249].
-* ]**Performance Reporting:** Generate and export reports per course/semester showing average class GPA, grade distribution, and enrollment count (`PerformanceReportingJPanel`)  251-256]. ]Includes student ranking based on final grade points for the course 250].
-* ]**Enrollment Insight:** View total enrollment count and tuition revenue for own courses, filterable by semester (`EnrollmentInsightJPanel`) 258].
+    * View list of enrolled students per course (`CourseEnrollmentJPanel` in `ui.StudentManagement`).
+    * View selected student's transcript summary (opens `TranscriptJPanel`).
+    * Manage assignments (Add/Update/Delete with title, max score, weight) for own courses (`StudentGradingJPanel`).
+    * Grade student submissions for assignments (`StudentGradingJPanel`).
+    * Final letter grade is automatically computed and updated based on weighted assignment scores (`Enrollment.calculateAndUpdateGrade`).
+* **Performance Reporting:** Generate and export reports per course/semester showing average class GPA, grade distribution, and enrollment count (`PerformanceReportingJPanel`). ]Includes student ranking based on final grade points for the course.
+* **Enrollment Insight:** View total enrollment count and tuition revenue for own courses, filterable by semester (`EnrollmentInsightJPanel`).
 
-### Student Role (Implemented by: [Team Member Name])
-* ]**Course Registration:** View available courses per semester, Search courses (by ID, Name, Faculty), Enroll in courses (up to 8 credits/semester), Drop courses (`CourseRegistrationJPanel`)  263-265]. ]Student is billed upon enrollment  298]]; simplified refund/credit applied upon drop 302].
-* ]**Transcript Review:** View course history, credits, grades per semester or all semesters (`TranscriptJPanel`) 269]. ]Calculates and displays Term GPA, Overall GPA  293-295]], and Academic Standing (Good, Warning, Probation)  275-280]. ]Access is blocked if tuition balance is outstanding 300].
-* ]**Graduation Audit:** Check progress towards MSIS degree requirements (32 credits total, including core course INFO5100) based on completed courses with passing grades (`GraduationAuditJPanel`)  266-268]. Displays "Ready" or "Not Ready" status with reasons.
-* ]**Financial Management:** View current tuition balance and transaction history (`StudentFinancialsJPanel`) 297]. ]Make payments via "Pay Tuition" button 298]. ]Handles zero/negative balance 301]. ]Shows billing/payment/refund history 303].
-* ]**Profile Management:** View and update own profile details (`StudentProfileJPanel`) 296].
-* ]**Coursework Management:** View assignments for enrolled courses, check status (Not Submitted, Submitted, Graded), view score if graded, and "Submit" assignments (creates submission record) (`StudentAssignmentPanel`) 262]. (Note: Does not implement file upload/download or detailed progress).
+### Student Role (Implemented by: [Deep Prajapati])
+* **Course Registration:** View available courses per semester, Search courses (by ID, Name, Faculty), Enroll in courses (up to 8 credits/semester), Drop courses (`CourseRegistrationJPanel`)  263-265]. ]Student is billed upon enrollment  298]]; simplified refund/credit applied upon drop.
+* **Transcript Review:** View course history, credits, grades per semester or all semesters (`TranscriptJPanel`). ]Calculates and displays Term GPA, Overall GPA, and Academic Standing (Good, Warning, Probation)  275-280]. ]Access is blocked if tuition balance is outstanding.
+* **Graduation Audit:** Check progress towards MSIS degree requirements (32 credits total, including core course INFO5100) based on completed courses with passing grades (`GraduationAuditJPanel`). Displays "Ready" or "Not Ready" status with reasons.
+* **Financial Management:** View current tuition balance and transaction history (`StudentFinancialsJPanel`). ]Make payments via "Pay Tuition" button.
+* Handles zero/negative balance. ]Shows billing/payment/refund history.
+* **Profile Management:** View and update own profile details (`StudentProfileJPanel`).
+* **Coursework Management:** View assignments for enrolled courses, check status (Not Submitted, Submitted, Graded), view score if graded, and "Submit" assignments (creates submission record) (`StudentAssignmentPanel`). (Note: Does not implement file upload/download or detailed progress).
 
 ## 7. Usage Instructions
 1.  **Launch:** Run `ui.MainJFrame.java`.
@@ -148,8 +149,33 @@ This project integrates a reference implementation of a Digital University Syste
 * Improve UI aesthetics.
 
 ## 11. Contribution Breakdown
-*(Each team member should fill this section detailing their specific contributions)*
-* **[Team Member 1 Name]:** [Describe contributions - e.g., Implemented Admin Use Case panels (ManagePersons, ManageAccounts, Analytics, Profile), refactored AuthManager, initial project setup...]
-* **[Team Member 2 Name]:** [Describe contributions - e.g., Implemented Faculty Use Case panels (FacultyDashboard, CourseMgmt sub-panels, StudentMgmt sub-panels, PerformanceReporting, EnrollmentInsight), extended model for Assignments/Submissions, implemented auto-grading logic...]
-* **[Team Member 3 Name]:** [Describe contributions - e.g., Implemented Student Use Case panels (StudentDashboard, CourseRegistration, Transcript, Audit, Financials, Profile, Assignments), implemented billing/refund logic, implemented transcript hold...]
-* **Team Collaboration:** [Describe how the team collaborated, e.g., code reviews, debugging sessions, Git workflow management...]
+**Zihao Chen (Administrator Use Case)**
+* Implemented Admin Dashboard, including ManagePersonsPanel, ManageAccountsPanel, AnalyticsPanel, and ProfilePanel.
+* Set up initial project structure and directories (model, ui, auth, directory).
+* Integrated person registration logic with validation for unique ID and email.
+* Designed and tested Analytics summary (active users, courses, tuition revenue).
+  
+**Zenish Borad (Faculty Use Case)**
+
+* Implemented all Faculty modules: FacultyDashboard, CourseDetailsJPanel, SyllabusManagementJPanel, EnrollmentInsightJPanel, and PerformanceReportingJPanel.
+* Developed Student Management features: StudentGradingJPanel, CourseEnrollmentJPanel, and TranscriptJPanel integration.
+* Added auto-grading logic in Enrollment.calculateAndUpdateGrade and GPA computations.
+* Conducted extensive testing and debugging;
+* Perform code review of panels.
+  
+**Deep Prajapati (Student Use Case)**
+
+* Implemented Student Dashboard modules: CourseRegistrationJPanel, TranscriptJPanel, GraduationAuditJPanel, StudentFinancialsJPanel, StudentProfileJPanel, and StudentAssignmentPanel. 
+* Designed enrollment, billing, refund, and tuition balance logic.
+* Created GPA and academic-standing calculations.
+* Tested student workflows (enroll/drop, pay tuition, audit progress).
+* Fixed cross-module errors and performed compulsory code adjustments across Admin, Faculty, and Student use cases to ensure consistent data flow and error-free execution.
+* Contributed to final integration testing and validation before submission.
+
+**Team Collaboration**
+
+* Used GitHub Desktop for version control and collaboration.
+* Conducted code reviews before merging feature branches.
+* Collaborated through group meetings and shared testing sessions to debug UI and logic integration.
+* Ensured consistent coding style, naming conventions, and data-flow handling across Admin, Faculty, and Student modules.
+* Created the final README and GitHub documentation.
