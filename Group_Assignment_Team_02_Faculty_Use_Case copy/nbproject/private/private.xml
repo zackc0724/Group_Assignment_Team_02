@@ -2,6 +2,12 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/Users/zenishborad/Desktop/Group_Assignment_Team_02/Group_Assignment_Team_02_Faculty_Use_Case%20copy/src/ui/FacultyJPanel.java</file>
+            <file>file:/Users/zenishborad/Desktop/Group_Assignment_Team_02/Group_Assignment_Team_02_Faculty_Use_Case%20copy/src/ui/ProfileManagementJPanel.java</file>
+            <file>file:/Users/zenishborad/Desktop/Group_Assignment_Team_02/Group_Assignment_Team_02_Faculty_Use_Case%20copy/src/ui/StudentManagementJPanel.java</file>
+            <file>file:/Users/zenishborad/Desktop/Group_Assignment_Team_02/Group_Assignment_Team_02_Faculty_Use_Case%20copy/src/ui/StudentManagement/CourseEnrollmentJPanel.java</file>
+            <file>file:/Users/zenishborad/Desktop/Group_Assignment_Team_02/Group_Assignment_Team_02_Faculty_Use_Case%20copy/src/ui/StudentManagement/StudentGradingJPanel.java</file>
+        </group>
     </open-files>
 </project-private>
