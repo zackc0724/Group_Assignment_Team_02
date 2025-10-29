@@ -165,17 +165,17 @@ This project integrates a reference implementation of a Digital University Syste
   
 **Deep Prajapati (Student Use Case)**
 
-*Implemented Student Dashboard modules: CourseRegistrationJPanel, TranscriptJPanel, GraduationAuditJPanel, StudentFinancialsJPanel, StudentProfileJPanel, and StudentAssignmentPanel.
-*Designed enrollment, billing, refund, and tuition balance logic.
-*Created GPA and academic-standing calculations.
-*Tested student workflows (enroll/drop, pay tuition, audit progress).
-*Fixed cross-module errors and performed compulsory code adjustments across Admin, Faculty, and Student use cases to ensure consistent data flow and error-free execution.
-*Contributed to final integration testing and validation before submission.
+* Implemented Student Dashboard modules: CourseRegistrationJPanel, TranscriptJPanel, GraduationAuditJPanel, StudentFinancialsJPanel, StudentProfileJPanel, and StudentAssignmentPanel. 
+* Designed enrollment, billing, refund, and tuition balance logic.
+* Created GPA and academic-standing calculations.
+* Tested student workflows (enroll/drop, pay tuition, audit progress).
+* Fixed cross-module errors and performed compulsory code adjustments across Admin, Faculty, and Student use cases to ensure consistent data flow and error-free execution.
+* Contributed to final integration testing and validation before submission.
 
 **Team Collaboration**
 
-*Used GitHub Desktop for version control and collaboration (10+ commits per member, 30+ on main branch).
-*Conducted code reviews before merging feature branches.
-*Collaborated through group meetings and shared testing sessions to debug UI and logic integration.
-*Ensured consistent coding style, naming conventions, and data-flow handling across Admin, Faculty, and Student modules.
-*Created the final README and GitHub documentation.
+* Used GitHub Desktop for version control and collaboration.
+* Conducted code reviews before merging feature branches.
+* Collaborated through group meetings and shared testing sessions to debug UI and logic integration.
+* Ensured consistent coding style, naming conventions, and data-flow handling across Admin, Faculty, and Student modules.
+* Created the final README and GitHub documentation.
