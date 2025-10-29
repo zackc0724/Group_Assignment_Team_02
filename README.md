@@ -1,7 +1,7 @@
 # INFO5100 Group Assignment 1: Implementing Access-Controlled Use Cases in a Digital University System
 
 ## 1. Project Title
-Implementing Access-Controlled Use Cases in a Digital University System
+EduCore: Role-Based Digital University Platform
 
 ## 2. Team Information
 * **Team Member 1 Name**
