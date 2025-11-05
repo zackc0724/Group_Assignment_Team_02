@@ -5,7 +5,7 @@ EduCore: Role-Based Digital University Platform
 
 ## 2. Team Information
 * **Zihao Chen**
-    * NUID: [ ]
+    * NUID: [002506299]
     * Assigned Role/Use Case: Administrator
     * Responsibilities: [My Profile, Manage Persons & Accounts, and Analytics Dashboard]
 * **Zenish Borad**
