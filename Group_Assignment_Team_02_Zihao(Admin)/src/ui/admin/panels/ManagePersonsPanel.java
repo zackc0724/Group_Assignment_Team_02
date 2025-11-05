@@ -64,6 +64,9 @@ public class ManagePersonsPanel extends javax.swing.JPanel {
             new Object [][] {},
             new String [] { "UnivID", "Name", "Email", "Dept", "Role" }
         ));
+        tblPeople.setRowHeight(24);
+        tblPeople.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        tblPeople.setFillsViewportHeight(true);
         jScrollPane1.setViewportView(tblPeople);
         jScrollPane1.setBounds(20,20,560,170);
         add(jScrollPane1);
