@@ -38,12 +38,6 @@ This satisfies:
   - total enrolled students per course (placeholder)
   - tuition revenue sum (placeholder)
 
-NOTE
-This is a runnable starter baseline. You will keep adding:
-- edit/delete actions,
-- search by name/ID/department,
-- JTable updates,
-- tuition + revenue logic,
-- etc.
-
-Assignment reference: Group Assignment 1, INFO 5100, due Oct 26, 2025. (See PDF spec.) 
+**Contributors:** Zihao Chen  
+**Tech:** Java 17, Swing (NetBeans), Ant project
+Assignment reference: Group Assignment 1, INFO 5100, Oct 26, 2025. 
