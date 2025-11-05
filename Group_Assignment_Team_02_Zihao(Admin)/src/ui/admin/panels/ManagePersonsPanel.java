@@ -20,6 +20,8 @@ public class ManagePersonsPanel extends javax.swing.JPanel {
     private JTextField txtDept;
     private JComboBox<String> cmbRole;
     private JLabel lblStatus;
+    private JTextField txtSearchName, txtSearchId, txtSearchDept;
+    private JButton btnSearchName, btnSearchId, btnSearchDept, btnReset;
 
     public ManagePersonsPanel(PersonDirectory pd) {
         this.personDirectory = pd;
@@ -65,6 +67,17 @@ public class ManagePersonsPanel extends javax.swing.JPanel {
         jScrollPane1.setViewportView(tblPeople);
         jScrollPane1.setBounds(20,20,560,170);
         add(jScrollPane1);
+        
+        txtSearchName = new JTextField(); txtSearchName.setBounds(20,195,140,24); add(txtSearchName);
+        btnSearchName = new JButton("Search Name"); btnSearchName.setBounds(165,195,130,24); add(btnSearchName);
+
+        txtSearchId = new JTextField(); txtSearchId.setBounds(300,195,120,24); add(txtSearchId);
+        btnSearchId = new JButton("Search ID"); btnSearchId.setBounds(425,195,110,24); add(btnSearchId);
+
+        txtSearchDept = new JTextField(); txtSearchDept.setBounds(20,225,140,24); add(txtSearchDept);
+        btnSearchDept = new JButton("Search Dept"); btnSearchDept.setBounds(165,225,130,24); add(btnSearchDept);
+
+        btnReset = new JButton("Reset"); btnReset.setBounds(300,225,120,24); add(btnReset);
 
         JLabel lblN = new JLabel("Name:");
         lblN.setBounds(20,210,60,20);
@@ -146,5 +159,37 @@ public class ManagePersonsPanel extends javax.swing.JPanel {
         lblStatus = new JLabel("...");
         lblStatus.setBounds(20,330,540,20);
         add(lblStatus);
+        
+        btnSearchName.addActionListener(e -> {
+        var rows = personDirectory.searchByName(txtSearchName.getText().trim());
+        showPeople(rows);
+    });
+    btnSearchId.addActionListener(e -> {
+        var p = personDirectory.findById(txtSearchId.getText().trim());
+        java.util.List<model.Person> only = new java.util.ArrayList<>();
+        if (p != null) only.add(p);
+        showPeople(only);
+    });
+    btnSearchDept.addActionListener(e -> {
+        var rows = personDirectory.searchByDepartment(txtSearchDept.getText().trim());
+        showPeople(rows);
+    });
+    btnReset.addActionListener(e -> populatePeopleTable());
     }
+    
+    private void showPeople(java.util.List<model.Person> list){
+    DefaultTableModel m = (DefaultTableModel) tblPeople.getModel();
+    m.setRowCount(0);
+    for (model.Person p : list){
+        m.addRow(new Object[]{ 
+            p.getUniversityId(), 
+            p.getName(), 
+            p.getEmail(), 
+            p.getDepartment(),
+            (p instanceof model.Student) ? "Student" :
+            (p instanceof model.Faculty) ? "Faculty" :
+            (p instanceof model.Admin) ? "Admin" : "Unknown"
+        });
+    }
+}
 }
