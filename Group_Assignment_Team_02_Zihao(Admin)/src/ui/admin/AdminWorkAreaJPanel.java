@@ -47,9 +47,10 @@ public class AdminWorkAreaJPanel extends javax.swing.JPanel {
         setBackground(new java.awt.Color(220,220,220));
         setLayout(null);
 
-        JLabel lblHeader = new JLabel("Admin Dashboard - Select a Task");
-        lblHeader.setBounds(20,20,260,20);
-        add(lblHeader);
+        JLabel lblTitle = new JLabel("Administrator Control Panel");
+        lblTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 16));
+        lblTitle.setBounds(20, 10, 300, 30);
+        add(lblTitle);
 
         JButton btnPersons = new JButton("Manage Persons");
         btnPersons.setBounds(20,60,200,24);
