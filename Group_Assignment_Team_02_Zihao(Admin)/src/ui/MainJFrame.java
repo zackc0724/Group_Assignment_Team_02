@@ -115,6 +115,7 @@ public class MainJFrame extends javax.swing.JFrame {
         lblLoginStatus.setBounds(20,220,180,24);
         leftLoginPanel.add(lblLoginStatus);
 
+        getRootPane().setDefaultButton(btnLogin);
         getContentPane().add(leftLoginPanel);
 
         rightWorkArea = new JPanel();
