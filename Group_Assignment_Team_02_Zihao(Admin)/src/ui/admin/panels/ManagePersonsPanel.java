@@ -65,16 +65,16 @@ public class ManagePersonsPanel extends javax.swing.JPanel {
             new String [] { "UnivID", "Name", "Email", "Dept", "Role" }
         ));
         jScrollPane1.setViewportView(tblPeople);
-        jScrollPane1.setBounds(20,20,560,170);
+        jScrollPane1.setBounds(20,20,640,170);
         add(jScrollPane1);
         
-        txtSearchName = new JTextField(); txtSearchName.setBounds(20,195,140,24); add(txtSearchName);
-        btnSearchName = new JButton("Search Name"); btnSearchName.setBounds(165,195,130,24); add(btnSearchName);
+        txtSearchName = new JTextField(); txtSearchName.setBounds(20,200,180,26); add(txtSearchName);
+        btnSearchName = new JButton("Search Name"); btnSearchName.setBounds(210,200,130,26); add(btnSearchName);
 
-        txtSearchId = new JTextField(); txtSearchId.setBounds(300,195,120,24); add(txtSearchId);
-        btnSearchId = new JButton("Search ID"); btnSearchId.setBounds(425,195,110,24); add(btnSearchId);
+        txtSearchId = new JTextField(); txtSearchId.setBounds(350,200,150,26); add(txtSearchId);
+        btnSearchId = new JButton("Search ID"); btnSearchId.setBounds(510,200,150,26); add(btnSearchId);
 
-        txtSearchDept = new JTextField(); txtSearchDept.setBounds(20,225,140,24); add(txtSearchDept);
+        txtSearchDept = new JTextField(); txtSearchDept.setBounds(20,236,180,26); add(txtSearchDept);
         btnSearchDept = new JButton("Search Dept"); btnSearchDept.setBounds(165,225,130,24); add(btnSearchDept);
 
         btnReset = new JButton("Reset"); btnReset.setBounds(300,225,120,24); add(btnReset);
