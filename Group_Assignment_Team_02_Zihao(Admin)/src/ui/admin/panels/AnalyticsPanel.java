@@ -99,5 +99,9 @@ public class AnalyticsPanel extends javax.swing.JPanel {
         lblTotalTuition = new JLabel("Total Tuition Revenue: $0");
         lblTotalTuition.setBounds(20,340,560,20);
         add(lblTotalTuition);
+        
+        JLabel lblUpdated = new JLabel("Last updated: " + java.time.LocalDateTime.now());
+        lblUpdated.setBounds(20, 370, 400, 20);
+        add(lblUpdated);
     }
 }
